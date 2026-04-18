@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💼 Calculadora Financiera v3.2 - Estructura Societaria</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* ==================== VARIABLES CSS ==================== */
+    :root {
+      /* Base Neutra */
+      --bg-primary: #FAFBFC;
+      --bg-card: #FFFFFF;
+      --border-default: #E5E7EB;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+
+      /* Acentos Funcionales */
+      --primary: #1E40AF;
+      --primary-hover: #1E3A8A;
+      --success: #047857;
+      --warning: #D97706;
+      --error: #DC2626;
+
+      /* Diferenciadores Tier */
+      --tier-1: #4F46E5;
+      --tier-2: #0891B2;
+      --tier-3: #7C3AED;
+      --tier-4: #DB2777;
+      --tier-5: #059669;
+      --controlador: #047857;
+
+      /* Sombras */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
+
+      /* Espaciado */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-lg: 16px;
+      --space-xl: 20px;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+    }
+
+    /* ==================== RESET Y BASE ==================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                   'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==================== LAYOUT PRINCIPAL ==================== */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-default);
+      padding: var(--space-xl) var(--space-xl);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--primary);
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--space-xl);
+      padding: var(--space-xl);
+      min-height: calc(100vh - 90px);
+    }
+
+    /* ==================== SIDEBAR ==================== */
+    .sidebar {
+      height: calc(100vh - 130px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: sticky;
+      top: 110px;
+      padding-right: 8px;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+    .input-section {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .input-group {
+      margin-bottom: var(--space-md);
+    }
+
+    .input-group:last-child { margin-bottom: 0; }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .input-group label small {
+      font-weight: 400;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      height: 34px;
+      padding: 0 var(--space-md);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .input-group input:disabled {
+      background: #F9FAFB;
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .input-group input.error  { border-color: var(--error); }
+    .input-group input.warning { border-color: var(--warning); }
+
+    .input-error-msg {
+      font-size: 11px;
+      color: var(--error);
+      margin-top: 4px;
+      display: none;
+    }
+    .input-error-msg.show { display: block; }
+
+    .input-warning-msg {
+      font-size: 11px;
+      color: var(--warning);
+      margin-top: 4px;
+      display: none;
+    }
+    .input-warning-msg.show { display: block; }
+
+    .input-help-text {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .input-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .input-checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: var(--space-md);
+    }
+    .input-checkbox-group input[type="checkbox"] { width: auto; height: auto; cursor: pointer; }
+    .input-checkbox-group label { margin-bottom: 0; cursor: pointer; user-select: none; }
+
+    /* ==================== TIER COLAPSABLE ==================== */
+    .tier-section {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-md);
+      border-left: 3px solid var(--tier-1);
+    }
+    .tier-section[data-tier-index="1"] { border-left-color: var(--tier-2); }
+    .tier-section[data-tier-index="2"] { border-left-color: var(--tier-3); }
+    .tier-section[data-tier-index="3"] { border-left-color: var(--tier-4); }
+    .tier-section[data-tier-index="4"] { border-left-color: var(--tier-5); }
+
+    .tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: var(--space-md);
+    }
+
+    .tier-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .tier-actions { display: flex; gap: var(--space-sm); }
+
+    .tier-btn-collapse,
+    .tier-btn-delete {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .tier-btn-collapse:hover,
+    .tier-btn-delete:hover    { background: #F3F4F6; }
+    .tier-btn-delete:hover     { color: var(--error); }
+
+    .tier-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .tier-content.collapsed { max-height: 0; }
+
+    .btn-add-tier {
+      width: 100%;
+      height: 40px;
+      border: 2px dashed var(--border-default);
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: var(--space-lg);
+    }
+    .btn-add-tier:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(30, 64, 175, 0.05);
+    }
+
+    /* ==================== PANEL RESULTADOS ==================== */
+    .results-panel {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    .metrics-summary {
+      background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 110px;
+      z-index: 50;
+    }
+
+    .metrics-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .metric-item { text-align: center; }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+      display: block;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+    .metric-value.highlight { color: var(--success); }
+
+    .metric-subtext {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Cards Resultados */
+    .result-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-md);
+      border-left: 3px solid var(--tier-1);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .result-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .result-card[data-tier-index="1"] { border-left-color: var(--tier-2); }
+    .result-card[data-tier-index="2"] { border-left-color: var(--tier-3); }
+    .result-card[data-tier-index="3"] { border-left-color: var(--tier-4); }
+    .result-card[data-tier-index="4"] { border-left-color: var(--tier-5); }
+    .result-card.controlador-card     { border-left-color: var(--controlador); }
+
+    .card-header { margin-bottom: var(--space-lg); }
+
+    .card-tier-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .card-title .amount { color: var(--success); font-size: 14px; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .card-metric {
+      background: #F9FAFB;
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+    }
+
+    .card-metric-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+      display: block;
+    }
+
+    .card-metric-value {
+      font-size: 16px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+    .card-metric-value.highlight { color: var(--success); }
+    .card-metric-subtext { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+    /* Detalle Mensual */
+    .detalle-toggle {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border-default);
+    }
+
+    .btn-toggle-detalle {
+      background: transparent;
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-toggle-detalle:hover { border-color: var(--primary); color: var(--primary); }
+
+    .detalle-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .detalle-content.expanded { max-height: 2000px; margin-top: var(--space-lg); }
+
+    .detalle-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .detalle-table th {
+      text-align: left;
+      padding: 8px;
+      background: #F9FAFB;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border-default);
+    }
+    .detalle-table td {
+      padding: 8px;
+      border-bottom: 1px solid #F3F4F6;
+      font-variant-numeric: tabular-nums;
+    }
+    .detalle-table tr:nth-child(even) { background: #FAFBFC; }
+    .detalle-table tr.payback-row { background: #ECFDF5; font-weight: 600; }
+
+    .btn-load-more {
+      margin-top: var(--space-md);
+      width: 100%;
+      height: 34px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-load-more:hover {
+      background: #F9FAFB;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Gráfico */
+    .chart-container {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-md);
+      height: 350px;
+    }
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* ==================== BOTONES ==================== */
+    .btn {
+      height: 34px;
+      padding: 0 var(--space-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-default); }
+    .btn-secondary:hover { background: #F9FAFB; }
+
+    /* ==================== UTILIDADES ==================== */
+    .text-warning { color: var(--warning); }
+    .text-error   { color: var(--error); }
+    .hidden       { display: none; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+      .container { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; overflow-y: visible; }
+      .metrics-summary { position: static; }
+      .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <div class="header-content">
+      <div>
+        <h1>💼 Modelo Financiero — <span id="displayNombreProyecto">Proyecto Sin Nombre</span></h1>
+        <div class="header-subtitle">v3.2 — Estructura Societaria</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
+        <button class="btn btn-primary"   id="btnExportar">💾 Exportar PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <div class="container" id="mainContainer">
+
+    <!-- ==================== SIDEBAR INPUTS ==================== -->
+    <aside class="sidebar">
+
+      <!-- ESTRUCTURA SOCIETARIA -->
+      <section class="input-section">
+        <div class="section-title">Estructura Societaria</div>
+        <div class="input-group">
+          <label for="nombreProyecto">Nombre del Proyecto</label>
+          <input type="text" id="nombreProyecto" placeholder="Ej: Restaurante XYZ">
+        </div>
+        <div class="input-group">
+          <label for="pctSocMicroinv">% Sociedad Microinversionistas <small>(editable)</small></label>
+          <input type="number" id="pctSocMicroinv" min="1" max="99" step="0.1" value="48">
+        </div>
+        <div class="input-group">
+          <label for="pctSocChef">% Controladora <small>(auto-calculado)</small></label>
+          <input type="number" id="pctSocChef" value="52" disabled>
+          <div class="input-help-text">Se calcula como 100% − % Microinversionistas</div>
+        </div>
+        <div class="input-error-msg" id="errorPct">El porcentaje debe estar entre 1% y 99%</div>
+      </section>
+
+      <!-- INGRESOS -->
+      <section class="input-section">
+        <div class="section-title">Ingresos Anuales por Año</div>
+        <div class="input-checkbox-group">
+          <input type="checkbox" id="incluirIVA">
+          <label for="incluirIVA">Ingresos incluyen IVA</label>
+        </div>
+        <div class="input-group" id="containerIVA" style="display:none;">
+          <label for="pctIVA">% IVA (%)</label>
+          <input type="number" id="pctIVA" min="0" max="25" step="0.1" value="19">
+          <div class="input-help-text">IVA se descontará de ingresos brutos</div>
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo1">Año 1 (Anual en $)</label>
+          <input type="text" id="ingresoAo1" class="money-input" value="600000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo2">Año 2 (Anual en $)</label>
+          <input type="text" id="ingresoAo2" class="money-input" value="750000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo3">Año 3 (Anual en $)</label>
+          <input type="text" id="ingresoAo3" class="money-input" value="900000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo4">Año 4 (Anual en $)</label>
+          <input type="text" id="ingresoAo4" class="money-input" value="1000000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo5">Año 5 — Estabilización (Anual en $)</label>
+          <input type="text" id="ingresoAo5" class="money-input" value="1100000000">
+        </div>
+      </section>
+
+      <!-- OPERACIÓN -->
+      <section class="input-section">
+        <div class="section-title">Operación y Tributación</div>
+        <div class="input-group">
+          <label for="margenUtilidad">Margen Utilidad (%)</label>
+          <input type="number" id="margenUtilidad" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="input-group">
+          <label for="pctDistribuir">% a Distribuir (%)</label>
+          <input type="number" id="pctDistribuir" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="input-group">
+          <label for="impuesto1Cat">Impuesto 1ª Categoría (%) <small>nivel sociedad</small></label>
+          <input type="number" id="impuesto1Cat" min="0" max="35" step="0.1" value="0">
+          <div class="input-help-text">Chile: 25% empresas (2024–2026)</div>
+        </div>
+      </section>
+
+      <!-- TIERS DINÁMICOS -->
+      <div id="tiersContainer"></div>
+      <button class="btn-add-tier" id="btnAddTier">+ Agregar Tier</button>
+
+      <!-- CONTROLADORA -->
+      <section class="input-section">
+        <div class="section-title">Controladora</div>
+        <div class="input-group">
+          <label for="ctrlCapitalInicial">Capital Inicial en Efectivo ($) <small>(opcional)</small></label>
+          <input type="text" id="ctrlCapitalInicial" class="money-input" value="0">
+          <div class="input-help-text">Para TIR/VAN se usa el valor de la participación equity</div>
+        </div>
+        <div class="input-group">
+          <label for="ctrlTipoHolder">Tipo de Holder</label>
+          <select id="ctrlTipoHolder">
+            <option value="personanatural">Persona Natural</option>
+            <option value="empresa">Empresa</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="ctrlRetencion">% Retención Impuestos (%)</label>
+          <input type="number" id="ctrlRetencion" min="0" max="99" step="0.1" value="0">
+        </div>
+      </section>
+
+      <!-- PARÁMETROS FINANCIEROS -->
+      <section class="input-section">
+        <div class="section-title">Parámetros Financieros</div>
+        <div class="input-group">
+          <label for="tasaDescuento">Tasa de Descuento Anual (%)</label>
+          <input type="number" id="tasaDescuento" min="0" max="50" step="0.1" value="12">
+          <div class="input-help-text">Para cálculo de VAN</div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ==================== PANEL RESULTADOS ==================== -->
+    <main class="results-panel">
+
+      <!-- MÉTRICAS CLAVE -->
+      <section class="metrics-summary">
+        <div class="metrics-title">Métricas Clave</div>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Capital Levantado</span>
+            <div class="metric-value highlight" id="metricCapital">$0</div>
+            <div class="metric-subtext"    id="metricCapitalPct">—% equity</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Payback Promedio</span>
+            <div class="metric-value" id="metricPayback">— meses</div>
+            <div class="metric-subtext">Ponderado</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">ROI Promedio</span>
+            <div class="metric-value" id="metricROI">—%</div>
+            <div class="metric-subtext">Año 5 estabilizado</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">TIR Promedio</span>
+            <div class="metric-value" id="metricTIR">—%</div>
+            <div class="metric-subtext">30 años</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">VAN Total</span>
+            <div class="metric-value highlight" id="metricVAN">$0</div>
+            <div class="metric-subtext">Valor creado</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Valor Empresa</span>
+            <div class="metric-value" id="metricValor">$0</div>
+            <div class="metric-subtext">Valorización</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TIERS RESULTADOS (dinámico) -->
+      <div id="tiersResultsContainer"></div>
+
+      <!-- CONTROLADORA RESULTADOS -->
+      <section class="result-card controlador-card" id="controladorResults">
+        <div class="card-header">
+          <div class="card-tier-label">CONTROLADORA</div>
+          <h2 class="card-title">Participación Mayoritaria • <span class="amount" id="ctrlResultPct">—%</span></h2>
+        </div>
+        <div class="card-grid">
+          <div class="card-metric">
+            <span class="card-metric-label">Valor Participación</span>
+            <div class="card-metric-value highlight" id="ctrlResultValor">$0</div>
+            <div class="card-metric-subtext"        id="ctrlResultPctSub">—% empresa</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">Retiro Mensual NETO</span>
+            <div class="card-metric-value highlight" id="ctrlResultRetiroNeto">$0</div>
+            <div class="card-metric-subtext"        id="ctrlResultRetiroBruto">Bruto: $0</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">Utilidad Anual NETA</span>
+            <div class="card-metric-value highlight" id="ctrlResultAnual">$0</div>
+            <div class="card-metric-subtext">Año 5 estabilizado</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">TIR</span>
+            <div class="card-metric-value" id="ctrlResultTIR">N/A</div>
+            <div class="card-metric-subtext">30 años</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">VAN</span>
+            <div class="card-metric-value" id="ctrlResultVAN">N/A</div>
+            <div class="card-metric-subtext">Valor creado</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRÁFICO -->
+      <section class="chart-container">
+        <h3 class="chart-title">Proyección VAN Acumulado (30 años)</h3>
+        <canvas id="vanChart"></canvas>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==================== JAVASCRIPT (modular) ==================== -->
+  <script src="engine.js"></script>
+  <script src="ui-inputs.js"></script>
+  <script src="ui-results.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
