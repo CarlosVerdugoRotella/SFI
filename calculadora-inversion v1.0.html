@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💼 Calculadora Financiera v3.1 - Estructura Societaria</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* ==================== VARIABLES CSS ==================== */
+    :root {
+      /* Base Neutra */
+      --bg-primary: #FAFBFC;
+      --bg-card: #FFFFFF;
+      --border-default: #E5E7EB;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+
+      /* Acentos Funcionales */
+      --primary: #1E40AF;
+      --primary-hover: #1E3A8A;
+      --success: #047857;
+      --warning: #D97706;
+      --error: #DC2626;
+
+      /* Diferenciadores Tier */
+      --tier-1: #4F46E5;
+      --tier-2: #0891B2;
+      --tier-3: #7C3AED;
+      --tier-4: #DB2777;
+      --tier-5: #059669;
+      --controlador: #047857;
+
+      /* Sombras */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
+
+      /* Espaciado */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-lg: 16px;
+      --space-xl: 20px;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+    }
+
+    /* ==================== RESET Y BASE ==================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                   'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==================== LAYOUT PRINCIPAL ==================== */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-default);
+      padding: var(--space-xl) var(--space-xl);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--primary);
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--space-xl);
+      padding: var(--space-xl);
+      min-height: calc(100vh - 90px);
+    }
+
+    /* ==================== SIDEBAR ==================== */
+    .sidebar {
+      height: calc(100vh - 130px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: sticky;
+      top: 110px;
+      padding-right: 8px;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border-default);
+      border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: var(--text-tertiary);
+    }
+
+    .input-section {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .input-group {
+      margin-bottom: var(--space-md);
+    }
+
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .input-group label small {
+      font-weight: 400;
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      height: 34px;
+      padding: 0 var(--space-md);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .input-group input:disabled {
+      background: #F9FAFB;
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .input-group input.error {
+      border-color: var(--error);
+    }
+
+    .input-group input.warning {
+      border-color: var(--warning);
+    }
+
+    .input-error-msg {
+      font-size: 11px;
+      color: var(--error);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .input-error-msg.show {
+      display: block;
+    }
+
+    .input-warning-msg {
+      font-size: 11px;
+      color: var(--warning);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .input-warning-msg.show {
+      display: block;
+    }
+
+    .input-help-text {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .input-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .input-checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: var(--space-md);
+    }
+
+    .input-checkbox-group input[type="checkbox"] {
+      width: auto;
+      height: auto;
+      cursor: pointer;
+    }
+
+    .input-checkbox-group label {
+      margin-bottom: 0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ==================== Tier Colapsable ==================== */
+    .tier-section {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-md);
+      border-left: 3px solid var(--tier-1);
+    }
+
+    .tier-section[data-tier-index="1"] {
+      border-left-color: var(--tier-2);
+    }
+
+    .tier-section[data-tier-index="2"] {
+      border-left-color: var(--tier-3);
+    }
+
+    .tier-section[data-tier-index="3"] {
+      border-left-color: var(--tier-4);
+    }
+
+    .tier-section[data-tier-index="4"] {
+      border-left-color: var(--tier-5);
+    }
+
+    .tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: var(--space-md);
+    }
+
+    .tier-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .tier-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .tier-btn-collapse,
+    .tier-btn-delete {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .tier-btn-collapse:hover,
+    .tier-btn-delete:hover {
+      background: #F3F4F6;
+    }
+
+    .tier-btn-delete:hover {
+      color: var(--error);
+    }
+
+    .tier-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .tier-content.collapsed {
+      max-height: 0;
+    }
+
+    .btn-add-tier {
+      width: 100%;
+      height: 40px;
+      border: 2px dashed var(--border-default);
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: var(--space-lg);
+    }
+
+    .btn-add-tier:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(30, 64, 175, 0.05);
+    }
+
+    /* ==================== PANEL RESULTADOS ==================== */
+    .results-panel {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    /* Métricas Clave */
+    .metrics-summary {
+      background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 110px;
+      z-index: 50;
+    }
+
+    .metrics-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .metric-item {
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+      display: block;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    .metric-value.highlight {
+      color: var(--success);
+    }
+
+    .metric-subtext {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Cards Resultados */
+    .result-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-md);
+      border-left: 3px solid var(--tier-1);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .result-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+    }
+
+    .result-card[data-tier-index="1"] {
+      border-left-color: var(--tier-2);
+    }
+
+    .result-card[data-tier-index="2"] {
+      border-left-color: var(--tier-3);
+    }
+
+    .result-card[data-tier-index="3"] {
+      border-left-color: var(--tier-4);
+    }
+
+    .result-card[data-tier-index="4"] {
+      border-left-color: var(--tier-5);
+    }
+
+    .result-card.controlador-card {
+      border-left-color: var(--controlador);
+    }
+
+    .card-header {
+      margin-bottom: var(--space-lg);
+    }
+
+    .card-tier-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .card-title .amount {
+      color: var(--success);
+      font-size: 14px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .card-metric {
+      background: #F9FAFB;
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+    }
+
+    .card-metric-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+      display: block;
+    }
+
+    .card-metric-value {
+      font-size: 16px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    .card-metric-value.highlight {
+      color: var(--success);
+    }
+
+    .card-metric-subtext {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Detalle Mensual */
+    .detalle-toggle {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border-default);
+    }
+
+    .btn-toggle-detalle {
+      background: transparent;
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-toggle-detalle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .detalle-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .detalle-content.expanded {
+      max-height: 2000px;
+      margin-top: var(--space-lg);
+    }
+
+    .detalle-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .detalle-table th {
+      text-align: left;
+      padding: 8px;
+      background: #F9FAFB;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border-default);
+    }
+
+    .detalle-table td {
+      padding: 8px;
+      border-bottom: 1px solid #F3F4F6;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .detalle-table tr:nth-child(even) {
+      background: #FAFBFC;
+    }
+
+    .detalle-table tr.payback-row {
+      background: #ECFDF5;
+      font-weight: 600;
+    }
+
+    .btn-load-more {
+      margin-top: var(--space-md);
+      width: 100%;
+      height: 34px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-load-more:hover {
+      background: #F9FAFB;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Gráfico */
+    .chart-container {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-md);
+      height: 350px;
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* ==================== BOTONES ==================== */
+    .btn {
+      height: 34px;
+      padding: 0 var(--space-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+    }
+
+    .btn-secondary:hover {
+      background: #F9FAFB;
+    }
+
+    /* ==================== UTILIDADES ==================== */
+    .text-warning {
+      color: var(--warning);
+    }
+
+    .text-error {
+      color: var(--error);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        overflow-y: visible;
+      }
+
+      .metrics-summary {
+        position: static;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <div class="header-content">
+      <div>
+        <h1>💼 Modelo Financiero - <span id="displayNombreProyecto">Proyecto Sin Nombre</span></h1>
+        <div class="header-subtitle">v3.1 - Estructura Societaria</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
+        <button class="btn btn-primary" id="btnExportar">💾 Exportar PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <div class="container" id="mainContainer">
+
+    <!-- ==================== SIDEBAR INPUTS ==================== -->
+    <aside class="sidebar">
+
+      <!-- PROYECTO -->
+      <section class="input-section">
+        <div class="section-title">Estructura Societaria</div>
+        <div class="input-group">
+          <label for="nombreProyecto">Nombre del Proyecto</label>
+          <input type="text" id="nombreProyecto" placeholder="Ej: Restaurante XYZ">
+        </div>
+        <div class="input-group">
+          <label for="pctSocMicroinv">% Sociedad Microinversionistas <small>(editable)</small></label>
+          <input type="number" id="pctSocMicroinv" min="1" max="99" step="0.1" value="48">
+        </div>
+        <div class="input-group">
+          <label for="pctSocChef">% Controladora <small>(auto-calculado)</small></label>
+          <input type="number" id="pctSocChef" value="52" disabled>
+          <div class="input-help-text">Se calcula como 100% - % Microinversionistas</div>
+        </div>
+        <div class="input-error-msg" id="errorPct">El porcentaje debe estar entre 1% y 99%</div>
+      </section>
+
+      <!-- INGRESOS -->
+      <section class="input-section">
+        <div class="section-title">Ingresos Anuales por Año</div>
+        <div class="input-checkbox-group">
+          <input type="checkbox" id="incluirIVA">
+          <label for="incluirIVA">Ingresos incluyen IVA</label>
+        </div>
+        <div class="input-group" id="containerIVA" style="display: none;">
+          <label for="pctIVA">% IVA (%)</label>
+          <input type="number" id="pctIVA" min="0" max="25" step="0.1" value="19">
+          <div class="input-help-text">IVA se descontará de ingresos brutos</div>
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo1">Año 1 (Anual en $)</label>
+          <input type="text" id="ingresoAo1" class="money-input" value="600000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo2">Año 2 (Anual en $)</label>
+          <input type="text" id="ingresoAo2" class="money-input" value="750000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo3">Año 3 (Anual en $)</label>
+          <input type="text" id="ingresoAo3" class="money-input" value="900000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo4">Año 4 (Anual en $)</label>
+          <input type="text" id="ingresoAo4" class="money-input" value="1000000000">
+        </div>
+        <div class="input-group">
+          <label for="ingresoAo5">Año 5 - Estabilización (Anual en $)</label>
+          <input type="text" id="ingresoAo5" class="money-input" value="1100000000">
+        </div>
+      </section>
+
+      <!-- OPERACIÓN -->
+      <section class="input-section">
+        <div class="section-title">Operación y Tributación</div>
+        <div class="input-group">
+          <label for="margenUtilidad">Margen Utilidad (%)</label>
+          <input type="number" id="margenUtilidad" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="input-group">
+          <label for="pctDistribuir">% a Distribuir (%)</label>
+          <input type="number" id="pctDistribuir" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="input-group">
+          <label for="impuesto1Cat">Impuesto 1ª Categoría (%) <small>nivel sociedad</small></label>
+          <input type="number" id="impuesto1Cat" min="0" max="35" step="0.1" value="0">
+          <div class="input-help-text">Chile: 25% empresas (2024-2026)</div>
+        </div>
+      </section>
+
+      <!-- TIERS DINÁMICOS -->
+      <div id="tiersContainer"></div>
+      <button class="btn-add-tier" id="btnAddTier">+ Agregar Tier</button>
+
+      <!-- CONTROLADOR -->
+      <section class="input-section">
+        <div class="section-title">Controladora</div>
+        <div class="input-group">
+          <label for="ctrlCapitalInicial">Capital Inicial en Efectivo ($) <small>(opcional)</small></label>
+          <input type="text" id="ctrlCapitalInicial" class="money-input" value="0">
+          <div class="input-help-text">Para TIR/VAN se usa el valor de la participación equity</div>
+        </div>
+        <div class="input-group">
+          <label for="ctrlTipoHolder">Tipo de Holder</label>
+          <select id="ctrlTipoHolder">
+            <option value="personanatural">Persona Natural</option>
+            <option value="empresa">Empresa</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="ctrlRetencion">% Retención Impuestos (%)</label>
+          <input type="number" id="ctrlRetencion" min="0" max="99" step="0.1" value="0">
+        </div>
+      </section>
+
+      <!-- PARÁMETROS FINANCIEROS -->
+      <section class="input-section">
+        <div class="section-title">Parámetros Financieros</div>
+        <div class="input-group">
+          <label for="tasaDescuento">Tasa de Descuento Anual (%)</label>
+          <input type="number" id="tasaDescuento" min="0" max="50" step="0.1" value="12">
+          <div class="input-help-text">Para cálculo de VAN</div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ==================== PANEL RESULTADOS ==================== -->
+    <main class="results-panel">
+
+      <!-- MÉTRICAS CLAVE -->
+      <section class="metrics-summary">
+        <div class="metrics-title">Métricas Clave</div>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Capital Levantado</span>
+            <div class="metric-value highlight" id="metricCapital">$0</div>
+            <div class="metric-subtext" id="metricCapitalPct">—% equity</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Payback Promedio</span>
+            <div class="metric-value" id="metricPayback">— meses</div>
+            <div class="metric-subtext">Ponderado</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">ROI Promedio</span>
+            <div class="metric-value" id="metricROI">—%</div>
+            <div class="metric-subtext">Año 5 estabilizado</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">TIR Promedio</span>
+            <div class="metric-value" id="metricTIR">—%</div>
+            <div class="metric-subtext">10 años</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">VAN Total</span>
+            <div class="metric-value highlight" id="metricVAN">$0</div>
+            <div class="metric-subtext">Valor creado</div>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Valor Empresa</span>
+            <div class="metric-value" id="metricValor">$0</div>
+            <div class="metric-subtext">Valorización</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TIERS RESULTADOS (dinámico) -->
+      <div id="tiersResultsContainer"></div>
+
+      <!-- CONTROLADOR RESULTADOS -->
+      <section class="result-card controlador-card" id="controladorResults">
+        <div class="card-header">
+          <div class="card-tier-label">CONTROLADORA</div>
+          <h2 class="card-title">Participación Mayoritaria • <span class="amount" id="ctrlResultPct">—%</span></h2>
+        </div>
+        <div class="card-grid">
+          <div class="card-metric">
+            <span class="card-metric-label">Valor Participación</span>
+            <div class="card-metric-value highlight" id="ctrlResultValor">$0</div>
+            <div class="card-metric-subtext" id="ctrlResultPctSub">—% empresa</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">Retiro Mensual NETO</span>
+            <div class="card-metric-value highlight" id="ctrlResultRetiroNeto">$0</div>
+            <div class="card-metric-subtext" id="ctrlResultRetiroBruto">Bruto: $0</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">Utilidad Anual NETA</span>
+            <div class="card-metric-value highlight" id="ctrlResultAnual">$0</div>
+            <div class="card-metric-subtext">Año 5 estabilizado</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">TIR</span>
+            <div class="card-metric-value" id="ctrlResultTIR">N/A</div>
+            <div class="card-metric-subtext">10 años</div>
+          </div>
+          <div class="card-metric">
+            <span class="card-metric-label">VAN</span>
+            <div class="card-metric-value" id="ctrlResultVAN">N/A</div>
+            <div class="card-metric-subtext">Valor creado</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRÁFICO -->
+      <section class="chart-container">
+        <h3 class="chart-title">Proyección VAN Acumulado (10 años)</h3>
+        <canvas id="vanChart"></canvas>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    // ==================== ESTADO GLOBAL ====================
+    let tiers = [];
+    let nextTierId = 1;
+    let vanChart = null;
+
+    // ==================== UTILIDADES ====================
+
+    function cleanNumber(str) {
+      if (!str) return 0;
+      return parseFloat(str.toString().replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
+    }
+
+    function formatMoney(num) {
+      return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        maximumFractionDigits: 0
+      }).format(num);
+    }
+
+    function formatPercent(num, decimals = 1) {
+      return (num * 100).toFixed(decimals) + '%';
+    }
+
+    function debounce(func, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    function getAoFromMes(mes) {
+      return Math.ceil(mes / 12);
+    }
+
+    // ==================== VALIDACIONES ====================
+
+    function validarPctMicroinv() {
+      const pctMicroinv = parseFloat(document.getElementById('pctSocMicroinv').value) || 0;
+      const errorEl = document.getElementById('errorPct');
+      const inputMicroinv = document.getElementById('pctSocMicroinv');
+      const inputChef = document.getElementById('pctSocChef');
+
+      if (pctMicroinv < 1 || pctMicroinv > 99) {
+        errorEl.classList.add('show');
+        inputMicroinv.classList.add('error');
+        return false;
+      } else {
+        errorEl.classList.remove('show');
+        inputMicroinv.classList.remove('error');
+
+        // Auto-calcular % Controladora
+        inputChef.value = (100 - pctMicroinv).toFixed(1);
+        return true;
+      }
+    }
+
+    // ==================== GESTIÓN DE TIERS ====================
+
+    function agregarTier() {
+      if (tiers.length >= 6) {
+        alert('Máximo 6 tiers permitidos');
+        return;
+      }
+
+      const tier = {
+        id: nextTierId++,
+        nombre: `Tier ${tiers.length + 1}`,
+        cantidad: 1,
+        monto: 10000000,
+        mesInversion: 0,
+        mesRetornos: 12,
+        tipoHolder: 'personanatural',
+        retencion: 10,
+        collapsed: false
+      };
+
+      tiers.push(tier);
+      renderTiers();
+      calcularTodo();
+    }
+
+    function eliminarTier(id) {
+      if (tiers.length <= 1) {
+        alert('Debe haber al menos 1 tier');
+        return;
+      }
+
+      if (!confirm('¿Eliminar este tier?')) return;
+
+      tiers = tiers.filter(t => t.id !== id);
+      renderTiers();
+      calcularTodo();
+    }
+
+    function toggleCollapseTier(id) {
+      const tier = tiers.find(t => t.id === id);
+      if (tier) {
+        tier.collapsed = !tier.collapsed;
+        renderTiers();
+      }
+    }
+
+    function actualizarTier(id, field, value) {
+      const tier = tiers.find(t => t.id === id);
+      if (!tier) return;
+
+      tier[field] = value;
+
+      // Validar mesRetornos > mesInversion
+      if (field === 'mesRetornos' || field === 'mesInversion') {
+        if (tier.mesRetornos <= tier.mesInversion) {
+          tier.mesRetornos = tier.mesInversion + 1;
+          renderTiers();
+          alert('El mes de inicio de retornos debe ser posterior al mes de inversión. Se ajustó automáticamente.');
+        }
+      }
+
+      calcularTodo();
+    }
+
+    function renderTiers() {
+      const container = document.getElementById('tiersContainer');
+      container.innerHTML = '';
+
+      tiers.forEach((tier, index) => {
+        const tierEl = document.createElement('section');
+        tierEl.className = 'tier-section';
+        tierEl.setAttribute('data-tier-index', index);
+
+        // Validar meses
+        const mesWarning = tier.mesRetornos <= tier.mesInversion;
+
+        tierEl.innerHTML = `
+          <div class="tier-header" onclick="toggleCollapseTier(${tier.id})">
+            <div class="tier-title">${tier.nombre} (Tier ${index + 1})</div>
+            <div class="tier-actions">
+              <button class="tier-btn-collapse" onclick="event.stopPropagation(); toggleCollapseTier(${tier.id})">
+                ${tier.collapsed ? '▼' : '▲'}
+              </button>
+              <button class="tier-btn-delete" onclick="event.stopPropagation(); eliminarTier(${tier.id})">
+                ×
+              </button>
+            </div>
+          </div>
+          <div class="tier-content ${tier.collapsed ? 'collapsed' : ''}">
+            <div class="input-group">
+              <label>Nombre del Tier</label>
+              <input type="text" value="${tier.nombre}" onchange="actualizarTier(${tier.id}, 'nombre', this.value)">
+            </div>
+            <div class="input-group">
+              <label>Cantidad de Inversionistas</label>
+              <input type="number" min="1" step="1" value="${tier.cantidad}" 
+                     onchange="actualizarTier(${tier.id}, 'cantidad', parseInt(this.value) || 1)">
+            </div>
+            <div class="input-group">
+              <label>Inversión Individual ($)</label>
+              <input type="text" class="money-input" value="${tier.monto.toLocaleString('es-CL')}" 
+                     data-tier-id="${tier.id}" data-field="monto">
+            </div>
+            <div class="input-group">
+              <label>Mes de Inversión</label>
+              <input type="number" min="0" max="24" step="1" value="${tier.mesInversion}" 
+                     class="${mesWarning ? 'warning' : ''}"
+                     onchange="actualizarTier(${tier.id}, 'mesInversion', parseInt(this.value) || 0)">
+            </div>
+            <div class="input-group">
+              <label>Mes Inicio Retornos</label>
+              <input type="number" min="0" max="36" step="1" value="${tier.mesRetornos}" 
+                     class="${mesWarning ? 'warning' : ''}"
+                     onchange="actualizarTier(${tier.id}, 'mesRetornos', parseInt(this.value) || 0)">
+              <div class="input-warning-msg ${mesWarning ? 'show' : ''}">
+                Debe ser mayor al mes de inversión
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Tipo de Holder</label>
+              <select onchange="actualizarTier(${tier.id}, 'tipoHolder', this.value)">
+                <option value="personanatural" ${tier.tipoHolder === 'personanatural' ? 'selected' : ''}>Persona Natural</option>
+                <option value="empresa" ${tier.tipoHolder === 'empresa' ? 'selected' : ''}>Empresa</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>% Retención Impuestos (%)</label>
+              <input type="number" min="0" max="99" step="0.1" value="${tier.retencion}" 
+                     onchange="actualizarTier(${tier.id}, 'retencion', parseFloat(this.value) || 0)">
+            </div>
+          </div>
+        `;
+
+        container.appendChild(tierEl);
+      });
+
+      // Re-aplicar formateo a money inputs
+      attachMoneyInputs();
+    }
+
+    function attachMoneyInputs() {
+      const moneyInputs = document.querySelectorAll('.money-input[data-tier-id]');
+      moneyInputs.forEach(input => {
+        // Remover listeners anteriores clonando
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+
+        newInput.addEventListener('input', debounce((e) => {
+          const value = cleanNumber(e.target.value);
+          e.target.value = value.toLocaleString('es-CL');
+
+          const tierId = e.target.getAttribute('data-tier-id');
+          const field = e.target.getAttribute('data-field');
+
+          if (tierId && field) {
+            actualizarTier(parseInt(tierId), field, value);
+          }
+        }, 400));
+      });
+    }
+
+    // ==================== CÁLCULOS MATEMÁTICOS ====================
+
+    function calcularTIR(flujos, maxIter = 100, tolerancia = 0.0001) {
+      if (flujos.length === 0) return null;
+
+      let r = 0.1;
+      for (let iter = 0; iter < maxIter; iter++) {
+        let van = 0;
+        let vanDerivada = 0;
+
+        flujos.forEach(f => {
+          const t = f.mes / 12;
+          van += f.monto / Math.pow(1 + r, t);
+          vanDerivada += -t * f.monto / Math.pow(1 + r, t + 1);
+        });
+
+        if (Math.abs(van) < tolerancia) return r;
+        if (vanDerivada === 0) break;
+
+        r = r - van / vanDerivada;
+
+        if (r < -0.99) r = -0.99;
+        if (r > 10) r = 10;
+      }
+
+      return null;
+    }
+
+    function calcularVAN(flujos, tasaDescuentoAnual) {
+      let van = 0;
+      flujos.forEach(f => {
+        const t = f.mes / 12;
+        van += f.monto / Math.pow(1 + tasaDescuentoAnual, t);
+      });
+      return van;
+    }
+
+    // ==================== FUNCIÓN CLAVE: getDividendoMensual (v3.1 - INPUT ANUAL) ====================
+    function getDividendoMensual(mes, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                 pctDistribuir, pctSocMicroinv, pctEnSociedad, 
+                                 impuesto1Cat, retencion) {
+      const ao = getAoFromMes(mes);
+
+      // ✅ Seleccionar ingreso ANUAL según año
+      let ingresoAnual;
+      if (ao === 1) ingresoAnual = ingresos.ao1;
+      else if (ao === 2) ingresoAnual = ingresos.ao2;
+      else if (ao === 3) ingresoAnual = ingresos.ao3;
+      else if (ao === 4) ingresoAnual = ingresos.ao4;
+      else ingresoAnual = ingresos.ao5;
+
+      // ✅ DIVIDIR POR 12 para obtener ingreso mensual
+      const ingresoMes = ingresoAnual / 12;
+
+      // NIVEL 1: RESTAURANTE
+      let ingresoNeto = ingresoMes;
+      let iva = 0;
+
+      if (incluirIVA) {
+        iva = ingresoMes * pctIVA;
+        ingresoNeto = ingresoMes - iva;
+      }
+
+      const utilidadOperacional = ingresoNeto * margenUtilidad;
+      const distribuibleTotal = utilidadOperacional * pctDistribuir;
+
+      // NIVEL 2: SOCIEDAD MICROINVERSIONISTAS
+      const dividendoSociedad = distribuibleTotal * pctSocMicroinv;
+      const impuesto1CatSoc = dividendoSociedad * impuesto1Cat;
+      const utilidadNetaSoc = dividendoSociedad - impuesto1CatSoc;
+
+      // NIVEL 3: INDIVIDUAL
+      const dividendoBrutoInd = utilidadNetaSoc * pctEnSociedad;
+      const retencionInd = dividendoBrutoInd * retencion;
+      const dividendoNetoInd = dividendoBrutoInd - retencionInd;
+
+      return {
+        ingresoMes,
+        iva,
+        ingresoNeto,
+        utilidadOperacional,
+        distribuibleTotal,
+        dividendoSociedad,
+        impuesto1CatSoc,
+        utilidadNetaSoc,
+        bruto: dividendoBrutoInd,
+        neto: dividendoNetoInd
+      };
+    }
+
+    // ==================== CÁLCULO PRINCIPAL ====================
+
+    function calcularTodo() {
+      try {
+        if (!validarPctMicroinv()) return;
+
+        const pctSocMicroinv = (parseFloat(document.getElementById('pctSocMicroinv').value) / 100) || 0;
+        const pctSocChef = (parseFloat(document.getElementById('pctSocChef').value) / 100) || 0;
+
+        const incluirIVA = document.getElementById('incluirIVA').checked;
+        const pctIVA = (parseFloat(document.getElementById('pctIVA').value) / 100) || 0.19;
+
+        const ingresos = {
+          ao1: cleanNumber(document.getElementById('ingresoAo1').value),
+          ao2: cleanNumber(document.getElementById('ingresoAo2').value),
+          ao3: cleanNumber(document.getElementById('ingresoAo3').value),
+          ao4: cleanNumber(document.getElementById('ingresoAo4').value),
+          ao5: cleanNumber(document.getElementById('ingresoAo5').value)
+        };
+
+        const margenUtilidad = (parseFloat(document.getElementById('margenUtilidad').value) / 100) || 0;
+        const pctDistribuir = (parseFloat(document.getElementById('pctDistribuir').value) / 100) || 0;
+        const impuesto1Cat = (parseFloat(document.getElementById('impuesto1Cat').value) / 100) || 0.25;
+        const tasaDescuento = (parseFloat(document.getElementById('tasaDescuento').value) / 100) || 0.12;
+
+        const controlador = {
+          capitalInicial: cleanNumber(document.getElementById('ctrlCapitalInicial').value),
+          retencion: (parseFloat(document.getElementById('ctrlRetencion').value) / 100) || 0
+        };
+
+        if (tiers.length === 0) return;
+
+        // Calcular capital levantado y valor empresa
+        const capitalLevantado = tiers.reduce((sum, t) => sum + (t.cantidad * t.monto), 0);
+        const valorEmpresa = pctSocMicroinv > 0 ? (capitalLevantado / pctSocMicroinv) : 0;
+        const valorControlador = valorEmpresa * pctSocChef;
+
+        // Calcular resultados por tier
+        const resultadosTiers = tiers.map(tier => {
+          // % en sociedad, no en empresa
+          const pctEnSociedad = capitalLevantado > 0 ? (tier.monto / capitalLevantado) : 0;
+          const pctEnRestaurant = pctEnSociedad * pctSocMicroinv;
+          const retencionDec = tier.retencion / 100;
+
+          const divAo5 = getDividendoMensual(60, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                              pctDistribuir, pctSocMicroinv, pctEnSociedad, 
+                                              impuesto1Cat, retencionDec);
+
+          // Calcular retiro promedio primeros 5 años
+          let sumaRetiros5Aos = 0;
+          for (let mes = tier.mesRetornos; mes <= 60; mes++) {
+            const div = getDividendoMensual(mes, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                             pctDistribuir, pctSocMicroinv, pctEnSociedad, 
+                                             impuesto1Cat, retencionDec);
+            sumaRetiros5Aos += div.neto;
+          }
+          const mesesRetornos5Aos = Math.max(1, 60 - tier.mesRetornos + 1);
+          const retiroPromedio5Aos = sumaRetiros5Aos / mesesRetornos5Aos;
+
+          const roiAnual = tier.monto > 0 ? ((divAo5.neto * 12) / tier.monto) : 0;
+
+          // Calcular payback
+          let paybackMeses = null;
+          let acumulado = 0;
+          for (let mes = tier.mesRetornos; mes <= 120; mes++) {
+            const div = getDividendoMensual(mes, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                             pctDistribuir, pctSocMicroinv, pctEnSociedad, 
+                                             impuesto1Cat, retencionDec);
+            acumulado += div.neto;
+
+            if (acumulado >= tier.monto) {
+              paybackMeses = mes - tier.mesInversion;
+              break;
+            }
+          }
+
+          // Calcular TIR y VAN
+          const flujos = [{ mes: tier.mesInversion, monto: -tier.monto }];
+          for (let mes = tier.mesRetornos; mes <= 120; mes++) {
+            const div = getDividendoMensual(mes, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                             pctDistribuir, pctSocMicroinv, pctEnSociedad, 
+                                             impuesto1Cat, retencionDec);
+            flujos.push({ mes: mes, monto: div.neto });
+          }
+
+          const tir = calcularTIR(flujos);
+          const van = calcularVAN(flujos, tasaDescuento);
+
+          // Detalle mensual
+          const detalleMensual = [];
+          let acumNeto = 0;
+          for (let mes = tier.mesRetornos; mes <= 120; mes++) {
+            const div = getDividendoMensual(mes, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                             pctDistribuir, pctSocMicroinv, pctEnSociedad, 
+                                             impuesto1Cat, retencionDec);
+            acumNeto += div.neto;
+
+            const ao = getAoFromMes(mes);
+            const mesEnAo = mes - ((ao - 1) * 12);
+
+            detalleMensual.push({
+              mes: mes,
+              aoMes: `${ao}.${mesEnAo}`,
+              bruto: div.bruto,
+              neto: div.neto,
+              acumulado: acumNeto,
+              esPayback: paybackMeses === (mes - tier.mesInversion)
+            });
+          }
+
+          return {
+            tier,
+            pctEnSociedad,
+            pctEnRestaurant,
+            divAo5,
+            retiroPromedio5Aos,
+            roiAnual,
+            paybackMeses,
+            tir,
+            van,
+            detalleMensual,
+            capitalTier: tier.cantidad * tier.monto
+          };
+        });
+
+        // Calcular resultados controlador
+        const pctParticipacionCtrl = pctSocChef;
+        const retencionCtrlDec = controlador.retencion;
+
+        const divCtrlAo5 = getDividendoMensual(60, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                                pctDistribuir, pctSocChef, 1.0, 
+                                                impuesto1Cat, retencionCtrlDec);
+
+        const utilidadAnualCtrl = divCtrlAo5.neto * 12;
+
+        // TIR/VAN basado en valor equity
+        const inversionInicialChef = valorEmpresa * pctSocChef;
+        const flujosCtrl = [{ mes: 0, monto: -inversionInicialChef }];
+
+        for (let mes = 1; mes <= 120; mes++) {
+          const div = getDividendoMensual(mes, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                           pctDistribuir, pctSocChef, 1.0, 
+                                           impuesto1Cat, retencionCtrlDec);
+          flujosCtrl.push({ mes: mes, monto: div.neto });
+        }
+
+        const tirCtrl = calcularTIR(flujosCtrl);
+        const vanCtrl = calcularVAN(flujosCtrl, tasaDescuento);
+
+        // Calcular promedios ponderados
+        const paybackPromedio = resultadosTiers.reduce((sum, r) => {
+          return sum + ((r.paybackMeses || 120) * r.capitalTier);
+        }, 0) / capitalLevantado;
+
+        const roiPromedio = resultadosTiers.reduce((sum, r) => {
+          return sum + (r.roiAnual * r.capitalTier);
+        }, 0) / capitalLevantado;
+
+        const tirPromedio = resultadosTiers.reduce((sum, r) => {
+          return sum + ((r.tir || 0) * r.capitalTier);
+        }, 0) / capitalLevantado;
+
+        const vanTotal = resultadosTiers.reduce((sum, r) => sum + (r.van || 0), 0) + (vanCtrl || 0);
+
+        // Actualizar métricas resumen
+        document.getElementById('metricCapital').textContent = formatMoney(capitalLevantado);
+        document.getElementById('metricCapitalPct').textContent = formatPercent(pctSocMicroinv) + ' equity';
+        document.getElementById('metricPayback').textContent = Math.round(paybackPromedio) + ' meses';
+        document.getElementById('metricROI').textContent = formatPercent(roiPromedio);
+        document.getElementById('metricTIR').textContent = tirPromedio !== null ? formatPercent(tirPromedio) : 'N/C';
+        document.getElementById('metricVAN').textContent = formatMoney(vanTotal);
+        document.getElementById('metricValor').textContent = formatMoney(valorEmpresa);
+
+        // Colorear métricas
+        const metricPayback = document.getElementById('metricPayback');
+        metricPayback.classList.remove('text-warning', 'text-error');
+        if (paybackPromedio > 48) metricPayback.classList.add('text-warning');
+
+        const metricROI = document.getElementById('metricROI');
+        metricROI.classList.remove('text-error');
+        if (roiPromedio < 0.10) metricROI.classList.add('text-error');
+
+        // Renderizar resultados
+        renderTiersResults(resultadosTiers, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                            pctDistribuir, pctSocMicroinv, impuesto1Cat, valorEmpresa);
+
+        // Actualizar controlador
+        document.getElementById('ctrlResultPct').textContent = formatPercent(pctSocChef);
+        document.getElementById('ctrlResultPctSub').textContent = formatPercent(pctSocChef) + ' empresa';
+        document.getElementById('ctrlResultValor').textContent = formatMoney(valorControlador);
+        document.getElementById('ctrlResultRetiroNeto').textContent = formatMoney(divCtrlAo5.neto);
+        document.getElementById('ctrlResultRetiroBruto').textContent = 'Bruto: ' + formatMoney(divCtrlAo5.bruto);
+        document.getElementById('ctrlResultAnual').textContent = formatMoney(utilidadAnualCtrl);
+        document.getElementById('ctrlResultTIR').textContent = tirCtrl !== null ? formatPercent(tirCtrl) : 'N/A';
+        document.getElementById('ctrlResultVAN').textContent = vanCtrl !== null ? formatMoney(vanCtrl) : 'N/A';
+
+        // Renderizar gráfico
+        renderChart(resultadosTiers, 
+                    { tir: tirCtrl, van: vanCtrl }, 
+                    ingresos, incluirIVA, pctIVA, margenUtilidad, pctDistribuir, 
+                    pctParticipacionCtrl, retencionCtrlDec, impuesto1Cat, 
+                    tasaDescuento);
+
+      } catch (error) {
+        console.error('Error en cálculos:', error);
+      }
+    }
+
+    // ==================== RENDERIZAR RESULTADOS TIERS ====================
+
+    function renderTiersResults(resultados, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                  pctDistribuir, pctSocMicroinv, impuesto1Cat, valorEmpresa) {
+      const container = document.getElementById('tiersResultsContainer');
+      container.innerHTML = '';
+
+      resultados.forEach((res, index) => {
+        const tierCard = document.createElement('section');
+        tierCard.className = 'result-card';
+        tierCard.setAttribute('data-tier-index', index);
+
+        tierCard.innerHTML = `
+          <div class="card-header">
+            <div class="card-tier-label">${res.tier.nombre.toUpperCase()}</div>
+            <h2 class="card-title">Por inversionista • <span class="amount">${formatMoney(res.tier.monto)}</span></h2>
+          </div>
+          <div class="card-grid">
+            <div class="card-metric">
+              <span class="card-metric-label">Inversión Individual</span>
+              <div class="card-metric-value">${formatMoney(res.tier.monto)}</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">Inicio Retornos</span>
+              <div class="card-metric-value">Mes ${res.tier.mesRetornos}</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">% en Sociedad Microinv.</span>
+              <div class="card-metric-value">${formatPercent(res.pctEnSociedad, 2)}</div>
+              <div class="card-metric-subtext">Del total fondos levantados</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">% en Restaurante</span>
+              <div class="card-metric-value">${formatPercent(res.pctEnRestaurant, 2)}</div>
+              <div class="card-metric-subtext">Del total empresa</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">Retiro Mensual NETO (Año 5)</span>
+              <div class="card-metric-value highlight">${formatMoney(res.divAo5.neto)}</div>
+              <div class="card-metric-subtext">Bruto: ${formatMoney(res.divAo5.bruto)}</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">Retiro Prom. 5 Años</span>
+              <div class="card-metric-value highlight">${formatMoney(res.retiroPromedio5Aos)}</div>
+              <div class="card-metric-subtext">Promedio mensual</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">ROI Anual NETO</span>
+              <div class="card-metric-value ${res.roiAnual < 0.10 ? 'text-error' : ''}">${formatPercent(res.roiAnual)}</div>
+              <div class="card-metric-subtext">Año 5 estabilizado</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">Payback Real</span>
+              <div class="card-metric-value ${res.paybackMeses > 48 ? 'text-warning' : ''}">${res.paybackMeses ? res.paybackMeses + ' meses' : '>120 meses'}</div>
+              <div class="card-metric-subtext">Desde inversión</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">TIR</span>
+              <div class="card-metric-value">${res.tir !== null ? formatPercent(res.tir) : 'N/C'}</div>
+              <div class="card-metric-subtext">10 años</div>
+            </div>
+            <div class="card-metric">
+              <span class="card-metric-label">VAN</span>
+              <div class="card-metric-value ${res.van < 0 ? 'text-error' : 'highlight'}">${formatMoney(res.van)}</div>
+              <div class="card-metric-subtext">Valor creado</div>
+            </div>
+          </div>
+
+          <div class="detalle-toggle">
+            <button class="btn-toggle-detalle" onclick="toggleDetalleMensual(${res.tier.id})">📊 Ver detalle mensual</button>
+          </div>
+          <div class="detalle-content" id="detalle-${res.tier.id}">
+            <table class="detalle-table">
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Año.Mes</th>
+                  <th>Dividendo Bruto</th>
+                  <th>Dividendo Neto</th>
+                  <th>Acumulado Neto</th>
+                </tr>
+              </thead>
+              <tbody id="detalle-body-${res.tier.id}"></tbody>
+            </table>
+            <button class="btn-load-more hidden" id="load-more-${res.tier.id}" onclick="loadMoreDetalle(${res.tier.id})">
+              Cargar más (siguiente 24 meses)
+            </button>
+          </div>
+        `;
+
+        container.appendChild(tierCard);
+
+        // Guardar detalle mensual en dataset
+        tierCard.dataset.detalle = JSON.stringify(res.detalleMensual);
+      });
+    }
+
+    // ==================== DETALLE MENSUAL ====================
+
+    let detalleState = {};
+
+    function toggleDetalleMensual(tierId) {
+      const detalleEl = document.getElementById(`detalle-${tierId}`);
+      const btn = detalleEl.previousElementSibling.querySelector('.btn-toggle-detalle');
+
+      if (!detalleState[tierId]) {
+        detalleState[tierId] = { expanded: false, loaded: 0 };
+      }
+
+      if (!detalleState[tierId].expanded) {
+        detalleEl.classList.add('expanded');
+        btn.textContent = '📊 Ocultar detalle';
+        detalleState[tierId].expanded = true;
+
+        if (detalleState[tierId].loaded === 0) {
+          loadMoreDetalle(tierId);
+        }
+      } else {
+        detalleEl.classList.remove('expanded');
+        btn.textContent = '📊 Ver detalle mensual';
+        detalleState[tierId].expanded = false;
+      }
+    }
+
+    function loadMoreDetalle(tierId) {
+      // Buscar la card correspondiente
+      const allCards = document.querySelectorAll('[data-tier-index]');
+      let targetCard = null;
+
+      allCards.forEach(c => {
+        const detalle = JSON.parse(c.dataset.detalle || '[]');
+        if (detalle.length > 0) {
+          const tier = tiers.find(t => t.id === tierId);
+          if (tier && detalle[0].mes === tier.mesRetornos) {
+            targetCard = c;
+          }
+        }
+      });
+
+      if (!targetCard) return;
+
+      const detalleMensual = JSON.parse(targetCard.dataset.detalle);
+      const tbody = document.getElementById(`detalle-body-${tierId}`);
+      const loadMoreBtn = document.getElementById(`load-more-${tierId}`);
+
+      if (!detalleState[tierId]) {
+        detalleState[tierId] = { expanded: true, loaded: 0 };
+      }
+
+      const start = detalleState[tierId].loaded;
+      const end = Math.min(start + 24, detalleMensual.length);
+
+      for (let i = start; i < end; i++) {
+        const d = detalleMensual[i];
+        const row = tbody.insertRow();
+        if (d.esPayback) row.className = 'payback-row';
+
+        row.innerHTML = `
+          <td>${d.mes}</td>
+          <td>${d.aoMes}</td>
+          <td>${formatMoney(d.bruto)}</td>
+          <td>${formatMoney(d.neto)}</td>
+          <td>${formatMoney(d.acumulado)}</td>
+        `;
+      }
+
+      detalleState[tierId].loaded = end;
+
+      if (end >= detalleMensual.length) {
+        loadMoreBtn.classList.add('hidden');
+      } else {
+        loadMoreBtn.classList.remove('hidden');
+      }
+    }
+
+    // ==================== GRÁFICO ====================
+
+    function renderChart(resultadosTiers, controladorData, ingresos, incluirIVA, pctIVA, 
+                          margenUtilidad, pctDistribuir, pctParticipacionCtrl, 
+                          retencionCtrlDec, impuesto1Cat, tasaDescuento) {
+      const ctx = document.getElementById('vanChart');
+
+      // Datos trimestrales (cada 3 meses)
+      const trimestres = [];
+      for (let mes = 0; mes <= 120; mes += 3) {
+        trimestres.push(mes);
+      }
+
+      const datasets = [];
+
+      // Dataset por cada tier
+      resultadosTiers.forEach((res, index) => {
+        const data = trimestres.map(mes => {
+          const flujos = [{ mes: res.tier.mesInversion, monto: -res.tier.monto }];
+          for (let m = res.tier.mesRetornos; m <= mes; m++) {
+            const detail = res.detalleMensual.find(d => d.mes === m);
+            if (detail) {
+              flujos.push({ mes: m, monto: detail.neto });
+            }
+          }
+          return calcularVAN(flujos, tasaDescuento);
+        });
+
+        const colors = ['#4F46E5', '#0891B2', '#7C3AED', '#DB2777', '#059669'];
+
+        datasets.push({
+          label: res.tier.nombre,
+          data: data,
+          borderColor: colors[index % colors.length],
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.3
+        });
+      });
+
+      // Dataset controlador
+      if (controladorData) {
+        const pctSocMicroinv = (parseFloat(document.getElementById('pctSocMicroinv').value) / 100) || 0;
+        const capitalLevantado = tiers.reduce((sum, t) => sum + (t.cantidad * t.monto), 0);
+        const valorEmpresa = pctSocMicroinv > 0 ? (capitalLevantado / pctSocMicroinv) : 0;
+        const pctSocChef = (parseFloat(document.getElementById('pctSocChef').value) / 100) || 0;
+        const inversionInicialChef = valorEmpresa * pctSocChef;
+
+        const dataCtrl = trimestres.map(mes => {
+          const flujos = [{ mes: 0, monto: -inversionInicialChef }];
+          for (let m = 1; m <= mes; m++) {
+            const div = getDividendoMensual(m, ingresos, incluirIVA, pctIVA, margenUtilidad, 
+                                             pctDistribuir, pctParticipacionCtrl, 1.0, 
+                                             impuesto1Cat, retencionCtrlDec);
+            flujos.push({ mes: m, monto: div.neto });
+          }
+          return calcularVAN(flujos, tasaDescuento);
+        });
+
+        datasets.push({
+          label: 'Controlador',
+          data: dataCtrl,
+          borderColor: '#047857',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          tension: 0.3
+        });
+      }
+
+      // Destruir chart anterior
+      if (vanChart) {
+        vanChart.destroy();
+      }
+
+      // Crear nuevo chart
+      vanChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: trimestres.map(m => `M${m}`),
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                padding: 10,
+                font: {
+                  size: 11
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(17, 24, 39, 0.95)',
+              titleFont: {
+                size: 12,
+                weight: 600
+              },
+              bodyFont: {
+                size: 12
+              },
+              padding: 10,
+              cornerRadius: 4,
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatMoney(context.parsed.y);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                font: {
+                  size: 11
+                }
+              }
+            },
+            y: {
+              grid: {
+                color: '#F3F4F6'
+              },
+              ticks: {
+                font: {
+                  size: 11
+                },
+                callback: function(value) {
+                  return '$' + (value / 1000000).toFixed(1) + 'M';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ==================== EXPORT PDF ====================
+
+    function exportarPDF() {
+      const nombreProyecto = document.getElementById('nombreProyecto').value.trim() || 'Proyecto';
+      const fecha = new Date().toLocaleDateString('es-CL');
+      const element = document.getElementById('mainContainer');
+
+      const opt = {
+        margin: 10,
+        filename: `modelo-financiero-${nombreProyecto.replace(/\s+/g, '-')}-${fecha}.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 1.5, useCORS: true, logging: false, width: element.scrollWidth, windowWidth: element.scrollWidth },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+        pagebreak: { mode: 'avoid-all', css: [] },
+        legacy: true
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // ==================== LIMPIAR ====================
+
+    function limpiarFormulario() {
+      if (!confirm('¿Seguro que deseas limpiar todos los datos? Esta acción no se puede deshacer.')) return;
+
+      document.getElementById('nombreProyecto').value = '';
+      document.getElementById('pctSocMicroinv').value = 48;
+      document.getElementById('pctSocChef').value = 52;
+      document.getElementById('incluirIVA').checked = false;
+      document.getElementById('containerIVA').style.display = 'none';
+      document.getElementById('pctIVA').value = 19;
+      document.getElementById('ingresoAo1').value = '600.000.000';
+      document.getElementById('ingresoAo2').value = '750.000.000';
+      document.getElementById('ingresoAo3').value = '900.000.000';
+      document.getElementById('ingresoAo4').value = '1.000.000.000';
+      document.getElementById('ingresoAo5').value = '1.100.000.000';
+      document.getElementById('margenUtilidad').value = 0;
+      document.getElementById('pctDistribuir').value = 0;
+      document.getElementById('impuesto1Cat').value = 0;
+      document.getElementById('ctrlCapitalInicial').value = '0';
+      document.getElementById('ctrlRetencion').value = 0;
+      document.getElementById('tasaDescuento').value = 12;
+
+      tiers = [{
+        id: 1,
+        nombre: 'Early Investors',
+        cantidad: 20,
+        monto: 10000000,
+        mesInversion: 0,
+        mesRetornos: 12,
+        tipoHolder: 'personanatural',
+        retencion: 10,
+        collapsed: false
+      }];
+      nextTierId = 2;
+      detalleState = {};
+
+      renderTiers();
+      calcularTodo();
+
+      document.getElementById('displayNombreProyecto').textContent = 'Proyecto Sin Nombre';
+    }
+
+    // ==================== INICIALIZACIÓN ====================
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Inicializar estado
+      tiers = [{
+        id: 1,
+        nombre: 'Early Investors',
+        cantidad: 20,
+        monto: 10000000,
+        mesInversion: 0,
+        mesRetornos: 12,
+        tipoHolder: 'personanatural',
+        retencion: 10,
+        collapsed: false
+      }];
+      nextTierId = 2;
+      renderTiers();
+
+      // ==================== ✨ CARGA DESDE CALCULADORA M² ====================
+      const datosGuardados = localStorage.getItem('datosIngresos');
+      if (datosGuardados) {
+        try {
+          const datos = JSON.parse(datosGuardados);
+
+          // Verificar que tenga los datos correctos (ANUALES)
+          if (datos.ingresosAnuales && Array.isArray(datos.ingresosAnuales) && datos.ingresosAnuales.length === 5) {
+            console.log('✅ Datos cargados desde Calculadora m²:', datos);
+
+            // Cargar valores ANUALES en los inputs
+            document.getElementById('ingresoAo1').value = datos.ingresosAnuales[0].toLocaleString('es-CL');
+            document.getElementById('ingresoAo2').value = datos.ingresosAnuales[1].toLocaleString('es-CL');
+            document.getElementById('ingresoAo3').value = datos.ingresosAnuales[2].toLocaleString('es-CL');
+            document.getElementById('ingresoAo4').value = datos.ingresosAnuales[3].toLocaleString('es-CL');
+            document.getElementById('ingresoAo5').value = datos.ingresosAnuales[4].toLocaleString('es-CL');
+
+            // Mostrar notificación al usuario
+            setTimeout(() => {
+              alert('✅ Datos cargados desde Calculadora de Ingresos m²\n\nIngresos anuales importados correctamente.');
+            }, 500);
+
+            // Limpiar localStorage después de cargar
+            localStorage.removeItem('datosIngresos');
+          }
+        } catch(e) {
+          console.error('❌ Error al cargar datos desde localStorage:', e);
+        }
+      }
+      // ==================== FIN CARGA DESDE CALCULADORA M² ====================
+
+      // 2. Formatear valores iniciales
+      const moneyInputsGlobal = document.querySelectorAll('#ingresoAo1, #ingresoAo2, #ingresoAo3, #ingresoAo4, #ingresoAo5, #ctrlCapitalInicial');
+      moneyInputsGlobal.forEach(input => {
+        const initialValue = cleanNumber(input.value);
+        input.value = initialValue.toLocaleString('es-CL');
+      });
+
+      // 3. Agregar listeners
+      moneyInputsGlobal.forEach(input => {
+        input.addEventListener('input', debounce(() => {
+          const value = cleanNumber(input.value);
+          input.value = value.toLocaleString('es-CL');
+          calcularTodo();
+        }, 400));
+      });
+
+      // Listener para % Microinversionistas
+      const pctMicroinvInput = document.getElementById('pctSocMicroinv');
+      pctMicroinvInput.addEventListener('input', debounce(() => {
+        if (validarPctMicroinv()) {
+          calcularTodo();
+        }
+      }, 400));
+
+      // Listener para toggle IVA
+      const incluirIVACheckbox = document.getElementById('incluirIVA');
+      const containerIVA = document.getElementById('containerIVA');
+
+      incluirIVACheckbox.addEventListener('change', () => {
+        if (incluirIVACheckbox.checked) {
+          containerIVA.style.display = 'block';
+        } else {
+          containerIVA.style.display = 'none';
+        }
+        calcularTodo();
+      });
+
+      // Auto-cálculo para otros inputs
+      const otherInputs = document.querySelectorAll('input:not(.money-input):not(#pctSocMicroinv):not(#pctSocChef):not(#incluirIVA):not([data-tier-id]), select');
+      const debouncedCalc = debounce(calcularTodo, 400);
+
+      otherInputs.forEach(input => {
+        input.addEventListener('input', debouncedCalc);
+        input.addEventListener('change', debouncedCalc);
+      });
+
+      // Botones
+      document.getElementById('btnAddTier').addEventListener('click', agregarTier);
+      document.getElementById('btnLimpiar').addEventListener('click', limpiarFormulario);
+      document.getElementById('btnExportar').addEventListener('click', exportarPDF);
+
+      // Nombre proyecto
+      document.getElementById('nombreProyecto').addEventListener('input', (e) => {
+        const nombre = e.target.value.trim() || 'Proyecto Sin Nombre';
+        document.getElementById('displayNombreProyecto').textContent = nombre;
+      });
+
+      // Calcular inicial
+      calcularTodo();
+    });
+  </script>
+
+</body>
+</html>

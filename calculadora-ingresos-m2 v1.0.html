@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Ingresos Restaurant v1.2</title>
+
+  <style>
+    /* ==================== VARIABLES CSS ==================== */
+    :root {
+      --bg-primary: #FAFBFC;
+      --bg-card: #FFFFFF;
+      --border-default: #E5E7EB;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+
+      --primary: #1E40AF;
+      --primary-hover: #1E3A8A;
+      --success: #047857;
+      --success-hover: #065f46;
+      --warning: #D97706;
+      --error: #DC2626;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
+
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-lg: 16px;
+      --space-xl: 20px;
+
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+    }
+
+    /* ==================== RESET Y BASE ==================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                   'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 140px;
+    }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-default);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--primary);
+    }
+
+    .btn-expand {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      border: 1px solid var(--border-default);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .btn-expand:hover {
+      background: #F9FAFB;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ==================== CONTAINER ==================== */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: var(--space-xl);
+    }
+
+    /* ==================== SECTIONS ==================== */
+    .section {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-md);
+      border-bottom: 2px solid var(--border-default);
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+
+    /* ==================== INPUTS ==================== */
+    .input-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      height: 40px;
+      padding: 0 var(--space-md);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .input-group input.error {
+      border-color: var(--error);
+    }
+
+    .input-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .input-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .input-error-msg {
+      font-size: 11px;
+      color: var(--error);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .input-error-msg.show {
+      display: block;
+    }
+
+    /* ==================== RADIO BUTTONS ==================== */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      padding: var(--space-md);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .radio-option:hover {
+      border-color: var(--primary);
+      background: #F9FAFB;
+    }
+
+    .radio-option input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      margin-right: var(--space-md);
+      cursor: pointer;
+    }
+
+    .radio-option.selected {
+      border-color: var(--primary);
+      background: #EFF6FF;
+    }
+
+    .radio-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .radio-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ==================== DENSIDAD BUTTONS ==================== */
+    .density-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .density-btn {
+      padding: var(--space-md);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .density-btn:hover {
+      border-color: var(--primary);
+      background: #F9FAFB;
+    }
+
+    .density-btn.active {
+      border-color: var(--primary);
+      background: #EFF6FF;
+    }
+
+    .density-btn-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .density-btn-value {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== CHECKBOXES ==================== */
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: #F9FAFB;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .checkbox-item input[type="number"] {
+      width: 80px;
+      height: 32px;
+      margin: 0;
+    }
+
+    /* ==================== MESA ROWS ==================== */
+    .mesa-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 60px;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      align-items: end;
+    }
+
+    .btn-remove-mesa {
+      height: 40px;
+      border: 1px solid var(--error);
+      background: white;
+      color: var(--error);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .btn-remove-mesa:hover {
+      background: var(--error);
+      color: white;
+    }
+
+    .btn-add-mesa {
+      width: 100%;
+      height: 40px;
+      border: 2px dashed var(--border-default);
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: var(--space-sm);
+    }
+
+    .btn-add-mesa:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(30, 64, 175, 0.05);
+    }
+
+    /* ==================== CURVA PRESETS ==================== */
+    .curva-presets {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .curva-preset-btn {
+      padding: var(--space-md);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .curva-preset-btn:hover {
+      border-color: var(--primary);
+      background: #F9FAFB;
+    }
+
+    .curva-preset-btn.active {
+      border-color: var(--primary);
+      background: #EFF6FF;
+    }
+
+    .curva-preset-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .curva-preset-values {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== INFO BOX ==================== */
+    .info-box {
+      background: #EFF6FF;
+      border: 1px solid #DBEAFE;
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .info-box-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .info-box-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .info-box.warning {
+      background: #FEF3C7;
+      border-color: #FDE68A;
+    }
+
+    .info-box.warning .info-box-title {
+      color: var(--warning);
+    }
+
+    /* ==================== FOOTER STICKY ==================== */
+    .footer-sticky {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to top, #ffffff 0%, #f8f9fa 100%);
+      border-top: 2px solid var(--border-default);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+      padding: var(--space-lg);
+      z-index: 999;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .footer-years {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .footer-year {
+      text-align: center;
+    }
+
+    .footer-year-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .footer-year-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--success);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footer-year-pct {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border-default);
+    }
+
+    .footer-indicators {
+      display: flex;
+      gap: var(--space-lg);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .footer-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      padding: var(--space-xl);
+      border-bottom: 1px solid var(--border-default);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn-close-modal {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s;
+    }
+
+    .btn-close-modal:hover {
+      background: #F3F4F6;
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: var(--space-xl);
+    }
+
+    .modal-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .modal-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-md);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .modal-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .modal-metric {
+      background: #F9FAFB;
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+    }
+
+    .modal-metric-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .modal-metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-lg);
+    }
+
+    .modal-table th {
+      text-align: left;
+      padding: var(--space-md);
+      background: #F9FAFB;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border-default);
+    }
+
+    .modal-table td {
+      padding: var(--space-md);
+      border-bottom: 1px solid #F3F4F6;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modal-table tr:nth-child(even) {
+      background: #FAFBFC;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border-default);
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+    }
+
+    .btn-secondary:hover {
+      background: #F9FAFB;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: var(--success-hover);
+    }
+
+    /* ==================== UTILITIES ==================== */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-muted {
+      color: var(--text-secondary);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .container {
+        padding: var(--space-md);
+      }
+
+      .input-grid-2,
+      .input-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .density-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .curva-presets {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-years {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
+      }
+
+      .footer-year-value {
+        font-size: 14px;
+      }
+
+      .footer-indicators {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+      }
+
+      .modal-metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <h1>📐 Calculadora Ingresos Restaurant v1.2</h1>
+    <button class="btn-expand" onclick="toggleModal()">
+      <span>📊</span>
+      <span>Ver Todo</span>
+    </button>
+  </header>
+
+  <!-- ==================== CONTAINER ==================== -->
+  <div class="container">
+
+    <!-- ==================== PASO 1: CAPACIDAD ==================== -->
+    <section class="section">
+      <h2 class="section-title">PASO 1: Capacidad del Local</h2>
+
+      <div class="radio-group">
+        <label class="radio-option" onclick="selectMethod('mesas')">
+          <input type="radio" name="method" value="mesas" checked>
+          <div>
+            <div class="radio-label">Cantidad de mesas</div>
+            <div class="radio-desc">Ya tengo definida la distribución de mesas</div>
+          </div>
+        </label>
+
+        <label class="radio-option" onclick="selectMethod('comedor')">
+          <input type="radio" name="method" value="comedor">
+          <div>
+            <div class="radio-label">m² área comedor</div>
+            <div class="radio-desc">Tengo los metros cuadrados del salón (FOH)</div>
+          </div>
+        </label>
+
+        <label class="radio-option" onclick="selectMethod('total')">
+          <input type="radio" name="method" value="total">
+          <div>
+            <div class="radio-label">m² superficie total</div>
+            <div class="radio-desc">Tengo los metros totales del local</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- MÉTODO A: MESAS -->
+      <div id="method-mesas">
+        <h3 class="section-subtitle">Distribución de Mesas</h3>
+        <div id="mesasContainer"></div>
+        <button class="btn-add-mesa" onclick="agregarMesa()">+ Agregar otro tamaño</button>
+
+        <div class="info-box">
+          <div class="info-box-title">Total calculado</div>
+          <div class="info-box-text">
+            <strong id="totalSillasDisplay">0 sillas</strong> en <strong id="totalMesasDisplay">0 mesas</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- MÉTODO B: M² COMEDOR -->
+      <div id="method-comedor" class="hidden">
+        <div class="input-group">
+          <label for="m2Comedor">m² Área Comedor (FOH)</label>
+          <input type="number" id="m2Comedor" min="20" max="1000" step="0.1" placeholder="Ej: 100">
+        </div>
+
+        <h3 class="section-subtitle">Densidad de Ocupación</h3>
+        <div class="density-buttons">
+          <div class="density-btn" onclick="selectDensity('holgado')">
+            <div class="density-btn-title">Holgado</div>
+            <div class="density-btn-value">1.85 m²/silla</div>
+            <div class="density-btn-value">(Fine Dining)</div>
+          </div>
+          <div class="density-btn active" onclick="selectDensity('promedio')">
+            <div class="density-btn-title">Promedio</div>
+            <div class="density-btn-value">1.30 m²/silla</div>
+            <div class="density-btn-value">(Casual)</div>
+          </div>
+          <div class="density-btn" onclick="selectDensity('ajustado')">
+            <div class="density-btn-title">Ajustado</div>
+            <div class="density-btn-value">1.05 m²/silla</div>
+            <div class="density-btn-value">(Fast Casual)</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-title">Capacidad estimada</div>
+          <div class="info-box-text">
+            <strong id="sillasComedorDisplay">0 sillas</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- MÉTODO C: M² TOTAL -->
+      <div id="method-total" class="hidden">
+        <div class="input-group">
+          <label for="m2Total">m² Superficie Total del Local</label>
+          <input type="number" id="m2Total" min="50" max="2000" step="0.1" placeholder="Ej: 150">
+        </div>
+
+        <h3 class="section-subtitle">Distribución de Espacios</h3>
+        <div class="input-grid-3">
+          <div class="input-group">
+            <label for="pctCocina">% Cocina/BOH</label>
+            <input type="number" id="pctCocina" min="20" max="50" step="1" value="35">
+          </div>
+          <div class="input-group">
+            <label for="pctBanos">% Baños/Servicios</label>
+            <input type="number" id="pctBanos" min="3" max="15" step="1" value="7">
+          </div>
+          <div class="input-group">
+            <label>% Comedor (auto)</label>
+            <input type="text" id="pctComedorDisplay" disabled value="58%">
+          </div>
+        </div>
+        <div class="input-error-msg" id="errorDistribucion">Cocina + Baños no puede exceder 100%</div>
+
+        <h3 class="section-subtitle">Densidad de Ocupación</h3>
+        <div class="density-buttons">
+          <div class="density-btn" onclick="selectDensity('holgado')">
+            <div class="density-btn-title">Holgado</div>
+            <div class="density-btn-value">1.85 m²/silla</div>
+            <div class="density-btn-value">(Fine Dining)</div>
+          </div>
+          <div class="density-btn active" onclick="selectDensity('promedio')">
+            <div class="density-btn-title">Promedio</div>
+            <div class="density-btn-value">1.30 m²/silla</div>
+            <div class="density-btn-value">(Casual)</div>
+          </div>
+          <div class="density-btn" onclick="selectDensity('ajustado')">
+            <div class="density-btn-title">Ajustado</div>
+            <div class="density-btn-value">1.05 m²/silla</div>
+            <div class="density-btn-value">(Fast Casual)</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-title">Resultados</div>
+          <div class="info-box-text">
+            m² Comedor: <strong id="m2ComedorCalcDisplay">0 m²</strong><br>
+            Capacidad: <strong id="sillasTotalDisplay">0 sillas</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PASO 2: OPERACIÓN ==================== -->
+    <section class="section">
+      <h2 class="section-title">PASO 2: Operación del Restaurant</h2>
+
+      <div class="input-grid-2">
+        <div class="input-group">
+          <label for="diasAbiertos">Días abiertos / semana</label>
+          <input type="number" id="diasAbiertos" min="1" max="7" step="1" value="6">
+        </div>
+        <div class="input-group">
+          <label for="ocupacion">% Ocupación promedio</label>
+          <input type="number" id="ocupacion" min="0" max="100" step="1" value="75">
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Servicios y Rotación</h3>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="checkAlmuerzo" onchange="calcular()">
+          <label for="checkAlmuerzo">Almuerzo</label>
+          <label style="font-size: 12px; margin: 0;">Rotación:</label>
+          <input type="number" id="rotacionAlmuerzo" min="0" max="10" step="0.1" value="1.0" onchange="calcular()">
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="checkOnce" onchange="calcular()">
+          <label for="checkOnce">Once / Té</label>
+          <label style="font-size: 12px; margin: 0;">Rotación:</label>
+          <input type="number" id="rotacionOnce" min="0" max="10" step="0.1" value="1.0" onchange="calcular()">
+        </div>
+
+        <div class="checkbox-item">
+          <input type="checkbox" id="checkCena" onchange="calcular()">
+          <label for="checkCena">Cena</label>
+          <label style="font-size: 12px; margin: 0;">Rotación:</label>
+          <input type="number" id="rotacionCena" min="0" max="10" step="0.1" value="1.0" onchange="calcular()">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="ticketPromedio">Ticket Promedio ($)</label>
+        <input type="number" id="ticketPromedio" min="1000" step="100" value="20000">
+      </div>
+    </section>
+
+    <!-- ==================== PASO 3: PROYECCIÓN ==================== -->
+    <section class="section">
+      <h2 class="section-title">PASO 3: Proyección 5 Años</h2>
+
+      <div class="info-box">
+        <div class="info-box-title">Ingreso máximo anual (100% capacidad)</div>
+        <div class="info-box-text">
+          <strong id="ingresoMaxDisplay">$0</strong>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Curva de Crecimiento</h3>
+      <div class="curva-presets">
+        <div class="curva-preset-btn" onclick="selectCurva('rapido')">
+          <div class="curva-preset-title">Rápido</div>
+          <div class="curva-preset-values">0-70-85-100-100%</div>
+        </div>
+        <div class="curva-preset-btn active" onclick="selectCurva('moderado')">
+          <div class="curva-preset-title">Moderado</div>
+          <div class="curva-preset-values">0-40-80-90-100%</div>
+        </div>
+        <div class="curva-preset-btn" onclick="selectCurva('conservador')">
+          <div class="curva-preset-title">Conservador</div>
+          <div class="curva-preset-values">0-0-70-85-100%</div>
+        </div>
+        <div class="curva-preset-btn" onclick="selectCurva('personalizado')">
+          <div class="curva-preset-title">Personalizado</div>
+          <div class="curva-preset-values">Ajustar manual</div>
+        </div>
+      </div>
+
+      <div id="curvaPersonalizada" class="hidden">
+        <h3 class="section-subtitle">Ajustar % por año</h3>
+        <div class="input-grid-3">
+          <div class="input-group">
+            <label for="pctAno1">Año 1 (%)</label>
+            <input type="number" id="pctAno1" min="0" max="100" step="1" value="0" onchange="calcular()">
+          </div>
+          <div class="input-group">
+            <label for="pctAno2">Año 2 (%)</label>
+            <input type="number" id="pctAno2" min="0" max="100" step="1" value="40" onchange="calcular()">
+          </div>
+          <div class="input-group">
+            <label for="pctAno3">Año 3 (%)</label>
+            <input type="number" id="pctAno3" min="0" max="100" step="1" value="80" onchange="calcular()">
+          </div>
+        </div>
+        <div class="input-grid-2">
+          <div class="input-group">
+            <label for="pctAno4">Año 4 (%)</label>
+            <input type="number" id="pctAno4" min="0" max="100" step="1" value="90" onchange="calcular()">
+          </div>
+          <div class="input-group">
+            <label for="pctAno5">Año 5 (%)</label>
+            <input type="number" id="pctAno5" min="0" max="100" step="1" value="100" onchange="calcular()">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== FOOTER STICKY ==================== -->
+  <div class="footer-sticky">
+    <div class="footer-content">
+      <div class="footer-years">
+        <div class="footer-year">
+          <div class="footer-year-label">Año 1 (Anual)</div>
+          <div class="footer-year-value" id="footerAno1">$0</div>
+          <div class="footer-year-pct" id="footerPct1">—%</div>
+        </div>
+        <div class="footer-year">
+          <div class="footer-year-label">Año 2 (Anual)</div>
+          <div class="footer-year-value" id="footerAno2">$0</div>
+          <div class="footer-year-pct" id="footerPct2">—%</div>
+        </div>
+        <div class="footer-year">
+          <div class="footer-year-label">Año 3 (Anual)</div>
+          <div class="footer-year-value" id="footerAno3">$0</div>
+          <div class="footer-year-pct" id="footerPct3">—%</div>
+        </div>
+        <div class="footer-year">
+          <div class="footer-year-label">Año 4 (Anual)</div>
+          <div class="footer-year-value" id="footerAno4">$0</div>
+          <div class="footer-year-pct" id="footerPct4">—%</div>
+        </div>
+        <div class="footer-year">
+          <div class="footer-year-label">Año 5 (Anual)</div>
+          <div class="footer-year-value" id="footerAno5">$0</div>
+          <div class="footer-year-pct" id="footerPct5">—%</div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-indicators">
+          <div class="footer-indicator">
+            <span>🪑</span>
+            <span id="footerSillas">0</span>
+          </div>
+          <div class="footer-indicator">
+            <span>📏</span>
+            <span id="footerDensidad">— s/m²</span>
+          </div>
+          <div class="footer-indicator">
+            <span>👥</span>
+            <span id="footerComensales">0/día</span>
+          </div>
+          <div class="footer-indicator">
+            <span>💰</span>
+            <span id="footerAnual">$0/año</span>
+          </div>
+        </div>
+
+        <div class="footer-actions">
+          <button class="btn btn-secondary" onclick="copiarValores()">📋 Copiar</button>
+          <button class="btn btn-secondary" onclick="limpiar()">🗑️ Limpiar</button>
+          <button class="btn btn-primary" onclick="exportarPDF()">💾 PDF</button>
+          <button class="btn btn-success" onclick="continuarAInversion()">💰 Continuar a Inversión →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL RESULTADOS COMPLETOS ==================== -->
+  <div class="modal-overlay" id="modalResultados" onclick="closeModalOutside(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">📊 Resultados Completos</h2>
+        <button class="btn-close-modal" onclick="toggleModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 class="modal-section-title">Capacidad</h3>
+          <div class="modal-metrics">
+            <div class="modal-metric">
+              <div class="modal-metric-label">Total sillas</div>
+              <div class="modal-metric-value" id="modalSillas">0</div>
+            </div>
+            <div class="modal-metric">
+              <div class="modal-metric-label">Sillas/m² comedor</div>
+              <div class="modal-metric-value" id="modalSillasM2Comedor">—</div>
+            </div>
+            <div class="modal-metric">
+              <div class="modal-metric-label">Sillas/m² local</div>
+              <div class="modal-metric-value" id="modalSillasM2Local">—</div>
+            </div>
+            <div class="modal-metric">
+              <div class="modal-metric-label">Comensales/día potencial</div>
+              <div class="modal-metric-value" id="modalComensales">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Proyección Ingresos Anuales</h3>
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th>Año</th>
+                <th>Ingreso Anual</th>
+                <th>% Capacidad</th>
+                <th>Ingreso Mensual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td id="modalIngresoAnual1">$0</td>
+                <td id="modalPct1">—%</td>
+                <td id="modalIngresoMes1">$0</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td id="modalIngresoAnual2">$0</td>
+                <td id="modalPct2">—%</td>
+                <td id="modalIngresoMes2">$0</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td id="modalIngresoAnual3">$0</td>
+                <td id="modalPct3">—%</td>
+                <td id="modalIngresoMes3">$0</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td id="modalIngresoAnual4">$0</td>
+                <td id="modalPct4">—%</td>
+                <td id="modalIngresoMes4">$0</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td id="modalIngresoAnual5">$0</td>
+                <td id="modalPct5">—%</td>
+                <td id="modalIngresoMes5">$0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Métricas Adicionales</h3>
+          <div class="modal-metrics">
+            <div class="modal-metric">
+              <div class="modal-metric-label">Ingreso anual Año 5</div>
+              <div class="modal-metric-value" id="modalIngresoAnualAno5">$0</div>
+            </div>
+            <div class="modal-metric">
+              <div class="modal-metric-label">Ingreso/m² anual (Año 5)</div>
+              <div class="modal-metric-value" id="modalIngresoM2">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="copiarValores()">📋 Copiar Valores</button>
+          <button class="btn btn-primary" onclick="exportarPDF()">💾 Exportar PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    // ==================== CONSTANTES ====================
+    const SEMANAS_POR_MES = 4.33;
+    const MESES_POR_ANO = 12;
+
+    // ==================== ESTADO GLOBAL ====================
+    let currentMethod = 'mesas';
+    let currentDensity = 'promedio';
+    let currentCurva = 'moderado';
+    let mesas = [
+      { personas: 2, cantidad: 0 },
+      { personas: 4, cantidad: 0 },
+      { personas: 6, cantidad: 0 }
+    ];
+
+    // Cache de resultados numéricos
+    let resultadosCache = {
+      ingresosAnuales: [],
+      ingresosMensuales: [],
+      totalSillas: 0,
+      comensalesDia: 0,
+      m2Comedor: 0,
+      m2Total: 0
+    };
+
+    const densidades = {
+      holgado: 1.85,
+      promedio: 1.30,
+      ajustado: 1.05
+    };
+
+    const curvas = {
+      rapido: [0, 70, 85, 100, 100],
+      moderado: [0, 40, 80, 90, 100],
+      conservador: [0, 0, 70, 85, 100]
+    };
+
+    // ==================== UTILIDADES ====================
+
+    function formatMoney(num) {
+      return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        maximumFractionDigits: 0
+      }).format(num);
+    }
+
+    function formatMoneyShort(num) {
+      if (num >= 1000000) {
+        return '$' + (num / 1000000).toFixed(1) + 'M';
+      }
+      return formatMoney(num);
+    }
+
+    // ==================== MÉTODO CAPACIDAD ====================
+
+    function selectMethod(method) {
+      currentMethod = method;
+
+      // Ocultar todos
+      document.getElementById('method-mesas').classList.add('hidden');
+      document.getElementById('method-comedor').classList.add('hidden');
+      document.getElementById('method-total').classList.add('hidden');
+
+      // Mostrar seleccionado
+      document.getElementById('method-' + method).classList.remove('hidden');
+
+      // Actualizar radio visualmente
+      document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+      document.querySelector(`input[value="${method}"]`).parentElement.classList.add('selected');
+
+      calcular();
+    }
+
+    function selectDensity(density) {
+      currentDensity = density;
+
+      document.querySelectorAll('.density-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.density-btn').classList.add('active');
+
+      calcular();
+    }
+
+    function selectCurva(curva) {
+      currentCurva = curva;
+
+      document.querySelectorAll('.curva-preset-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.curva-preset-btn').classList.add('active');
+
+      if (curva === 'personalizado') {
+        document.getElementById('curvaPersonalizada').classList.remove('hidden');
+      } else {
+        document.getElementById('curvaPersonalizada').classList.add('hidden');
+        // Setear valores preset
+        const valores = curvas[curva];
+        document.getElementById('pctAno1').value = valores[0];
+        document.getElementById('pctAno2').value = valores[1];
+        document.getElementById('pctAno3').value = valores[2];
+        document.getElementById('pctAno4').value = valores[3];
+        document.getElementById('pctAno5').value = valores[4];
+      }
+
+      calcular();
+    }
+
+    // ==================== GESTIÓN MESAS ====================
+
+    function renderMesas() {
+      const container = document.getElementById('mesasContainer');
+      container.innerHTML = '';
+
+      mesas.forEach((mesa, index) => {
+        const row = document.createElement('div');
+        row.className = 'mesa-row';
+        row.innerHTML = `
+          <div class="input-group" style="margin: 0;">
+            <label>Personas por mesa</label>
+            <input type="number" min="1" max="20" step="1" value="${mesa.personas}" 
+                   onchange="actualizarMesa(${index}, 'personas', parseInt(this.value) || 1)">
+          </div>
+          <div class="input-group" style="margin: 0;">
+            <label>Cantidad de mesas</label>
+            <input type="number" min="0" max="100" step="1" value="${mesa.cantidad}" 
+                   onchange="actualizarMesa(${index}, 'cantidad', parseInt(this.value) || 0)">
+          </div>
+          ${mesas.length > 1 ? `<button class="btn-remove-mesa" onclick="eliminarMesa(${index})">×</button>` : '<div></div>'}
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function agregarMesa() {
+      mesas.push({ personas: 8, cantidad: 0 });
+      renderMesas();
+      calcular();
+    }
+
+    function eliminarMesa(index) {
+      if (mesas.length <= 1) {
+        alert('Debe haber al menos una configuración de mesa');
+        return;
+      }
+      mesas.splice(index, 1);
+      renderMesas();
+      calcular();
+    }
+
+    function actualizarMesa(index, field, value) {
+      mesas[index][field] = value;
+      calcular();
+    }
+
+    // ==================== CÁLCULO PRINCIPAL ====================
+
+    function calcular() {
+      try {
+        // 1. CALCULAR SILLAS TOTALES
+        let totalSillas = 0;
+
+        if (currentMethod === 'mesas') {
+          totalSillas = mesas.reduce((sum, m) => sum + (m.personas * m.cantidad), 0);
+          document.getElementById('totalSillasDisplay').textContent = totalSillas + ' sillas';
+          document.getElementById('totalMesasDisplay').textContent = mesas.reduce((sum, m) => sum + m.cantidad, 0) + ' mesas';
+        } else if (currentMethod === 'comedor') {
+          const m2Comedor = parseFloat(document.getElementById('m2Comedor').value) || 0;
+          totalSillas = Math.floor(m2Comedor / densidades[currentDensity]);
+          document.getElementById('sillasComedorDisplay').textContent = totalSillas + ' sillas';
+        } else if (currentMethod === 'total') {
+          const m2Total = parseFloat(document.getElementById('m2Total').value) || 0;
+          const pctCocina = parseFloat(document.getElementById('pctCocina').value) || 0;
+          const pctBanos = parseFloat(document.getElementById('pctBanos').value) || 0;
+          const pctComedor = 100 - pctCocina - pctBanos;
+
+          document.getElementById('pctComedorDisplay').value = pctComedor + '%';
+
+          const errorDistribucion = document.getElementById('errorDistribucion');
+          if (pctComedor < 0) {
+            errorDistribucion.classList.add('show');
+            return;
+          } else {
+            errorDistribucion.classList.remove('show');
+          }
+
+          const m2Comedor = m2Total * (pctComedor / 100);
+          totalSillas = Math.floor(m2Comedor / densidades[currentDensity]);
+
+          document.getElementById('m2ComedorCalcDisplay').textContent = m2Comedor.toFixed(1) + ' m²';
+          document.getElementById('sillasTotalDisplay').textContent = totalSillas + ' sillas';
+        }
+
+        if (totalSillas === 0) return;
+
+        // 2. CALCULAR OPERACIÓN
+        const diasAbiertos = parseInt(document.getElementById('diasAbiertos').value) || 0;
+        const ocupacion = parseFloat(document.getElementById('ocupacion').value) / 100 || 0;
+        const ticketPromedio = parseFloat(document.getElementById('ticketPromedio').value) || 0;
+
+        let rotacionTotal = 0;
+        if (document.getElementById('checkAlmuerzo').checked) {
+          rotacionTotal += parseFloat(document.getElementById('rotacionAlmuerzo').value) || 0;
+        }
+        if (document.getElementById('checkOnce').checked) {
+          rotacionTotal += parseFloat(document.getElementById('rotacionOnce').value) || 0;
+        }
+        if (document.getElementById('checkCena').checked) {
+          rotacionTotal += parseFloat(document.getElementById('rotacionCena').value) || 0;
+        }
+
+        if (rotacionTotal === 0) return;
+
+        // 3. CALCULAR INGRESOS
+        const comensalesDia = totalSillas * rotacionTotal * ocupacion;
+        const diasMes = diasAbiertos * SEMANAS_POR_MES;
+        const comensalesMes = comensalesDia * diasMes;
+        const ingresoMensual = comensalesMes * ticketPromedio;
+        const ingresoAnualMax = ingresoMensual * MESES_POR_ANO;
+
+        // 4. APLICAR CURVA
+        const pctAno1 = parseFloat(document.getElementById('pctAno1').value) || 0;
+        const pctAno2 = parseFloat(document.getElementById('pctAno2').value) || 0;
+        const pctAno3 = parseFloat(document.getElementById('pctAno3').value) || 0;
+        const pctAno4 = parseFloat(document.getElementById('pctAno4').value) || 0;
+        const pctAno5 = parseFloat(document.getElementById('pctAno5').value) || 0;
+
+        const ingresosAnuales = [
+          ingresoAnualMax * (pctAno1 / 100),
+          ingresoAnualMax * (pctAno2 / 100),
+          ingresoAnualMax * (pctAno3 / 100),
+          ingresoAnualMax * (pctAno4 / 100),
+          ingresoAnualMax * (pctAno5 / 100)
+        ];
+
+        const ingresosMensuales = ingresosAnuales.map(a => a / 12);
+
+        // 5. GUARDAR EN CACHE
+        resultadosCache = {
+          ingresosAnuales: ingresosAnuales,
+          ingresosMensuales: ingresosMensuales,
+          totalSillas: totalSillas,
+          comensalesDia: Math.round(comensalesDia),
+          m2Comedor: currentMethod === 'mesas' ? 0 : (currentMethod === 'comedor' ? parseFloat(document.getElementById('m2Comedor').value) : 0),
+          m2Total: currentMethod === 'total' ? parseFloat(document.getElementById('m2Total').value) : 0,
+          ingresoAnualMax: ingresoAnualMax
+        };
+
+        // 6. ACTUALIZAR UI - FOOTER (ANUAL)
+        document.getElementById('footerAno1').textContent = formatMoneyShort(ingresosAnuales[0]);
+        document.getElementById('footerAno2').textContent = formatMoneyShort(ingresosAnuales[1]);
+        document.getElementById('footerAno3').textContent = formatMoneyShort(ingresosAnuales[2]);
+        document.getElementById('footerAno4').textContent = formatMoneyShort(ingresosAnuales[3]);
+        document.getElementById('footerAno5').textContent = formatMoneyShort(ingresosAnuales[4]);
+
+        document.getElementById('footerPct1').textContent = pctAno1 + '%';
+        document.getElementById('footerPct2').textContent = pctAno2 + '%';
+        document.getElementById('footerPct3').textContent = pctAno3 + '%';
+        document.getElementById('footerPct4').textContent = pctAno4 + '%';
+        document.getElementById('footerPct5').textContent = pctAno5 + '%';
+
+        // 7. INDICADORES
+        document.getElementById('footerSillas').textContent = totalSillas;
+        document.getElementById('footerComensales').textContent = Math.round(comensalesDia) + '/día';
+        document.getElementById('footerAnual').textContent = formatMoneyShort(ingresoAnualMax) + '/año';
+
+        if (currentMethod === 'comedor') {
+          const m2Comedor = parseFloat(document.getElementById('m2Comedor').value) || 1;
+          document.getElementById('footerDensidad').textContent = (totalSillas / m2Comedor).toFixed(2) + ' s/m²';
+        } else if (currentMethod === 'total') {
+          const m2Total = parseFloat(document.getElementById('m2Total').value) || 1;
+          document.getElementById('footerDensidad').textContent = (totalSillas / m2Total).toFixed(2) + ' s/m²';
+        } else {
+          document.getElementById('footerDensidad').textContent = '— s/m²';
+        }
+
+        // 8. ACTUALIZAR PASO 3
+        document.getElementById('ingresoMaxDisplay').textContent = formatMoney(ingresoAnualMax);
+
+        // 9. ACTUALIZAR MODAL
+        actualizarModal();
+
+      } catch (error) {
+        console.error('Error en cálculo:', error);
+      }
+    }
+
+    // ==================== MODAL ====================
+
+    function actualizarModal() {
+      // Capacidad
+      document.getElementById('modalSillas').textContent = resultadosCache.totalSillas;
+
+      if (resultadosCache.m2Comedor > 0) {
+        document.getElementById('modalSillasM2Comedor').textContent = (resultadosCache.totalSillas / resultadosCache.m2Comedor).toFixed(2);
+      } else {
+        document.getElementById('modalSillasM2Comedor').textContent = '—';
+      }
+
+      if (resultadosCache.m2Total > 0) {
+        document.getElementById('modalSillasM2Local').textContent = (resultadosCache.totalSillas / resultadosCache.m2Total).toFixed(2);
+      } else {
+        document.getElementById('modalSillasM2Local').textContent = '—';
+      }
+
+      document.getElementById('modalComensales').textContent = resultadosCache.comensalesDia;
+
+      // Proyección
+      for (let i = 0; i < 5; i++) {
+        const pct = parseFloat(document.getElementById(`pctAno${i+1}`).value) || 0;
+        document.getElementById(`modalIngresoAnual${i+1}`).textContent = formatMoney(resultadosCache.ingresosAnuales[i]);
+        document.getElementById(`modalIngresoMes${i+1}`).textContent = formatMoney(resultadosCache.ingresosMensuales[i]);
+        document.getElementById(`modalPct${i+1}`).textContent = pct + '%';
+      }
+
+      // Métricas adicionales
+      document.getElementById('modalIngresoAnualAno5').textContent = formatMoney(resultadosCache.ingresosAnuales[4]);
+
+      if (resultadosCache.m2Total > 0) {
+        const ingresoM2 = resultadosCache.ingresosAnuales[4] / resultadosCache.m2Total;
+        document.getElementById('modalIngresoM2').textContent = formatMoney(ingresoM2) + '/m²';
+      } else if (resultadosCache.m2Comedor > 0) {
+        const ingresoM2 = resultadosCache.ingresosAnuales[4] / resultadosCache.m2Comedor;
+        document.getElementById('modalIngresoM2').textContent = formatMoney(ingresoM2) + '/m²';
+      } else {
+        document.getElementById('modalIngresoM2').textContent = '—';
+      }
+    }
+
+    function toggleModal() {
+      const modal = document.getElementById('modalResultados');
+      modal.classList.toggle('show');
+    }
+
+    function closeModalOutside(event) {
+      if (event.target.id === 'modalResultados') {
+        toggleModal();
+      }
+    }
+
+    // ==================== ACCIONES ====================
+
+    function copiarValores() {
+      if (resultadosCache.ingresosAnuales.length === 0) {
+        alert('No hay valores para copiar. Completa los campos primero.');
+        return;
+      }
+
+      const texto = `INGRESOS ANUALES PROYECTADOS\n` +
+                    `Año 1: ${formatMoney(resultadosCache.ingresosAnuales[0])}\n` +
+                    `Año 2: ${formatMoney(resultadosCache.ingresosAnuales[1])}\n` +
+                    `Año 3: ${formatMoney(resultadosCache.ingresosAnuales[2])}\n` +
+                    `Año 4: ${formatMoney(resultadosCache.ingresosAnuales[3])}\n` +
+                    `Año 5: ${formatMoney(resultadosCache.ingresosAnuales[4])}`;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('✅ Valores copiados al portapapeles');
+      }).catch(() => {
+        alert('❌ Error al copiar. Intenta nuevamente.');
+      });
+    }
+
+    function limpiar() {
+      if (!confirm('¿Seguro que deseas limpiar todos los valores?')) return;
+
+      // Reset mesas
+      mesas = [
+        { personas: 2, cantidad: 0 },
+        { personas: 4, cantidad: 0 },
+        { personas: 6, cantidad: 0 }
+      ];
+      renderMesas();
+
+      // Reset inputs
+      document.getElementById('m2Comedor').value = '';
+      document.getElementById('m2Total').value = '';
+      document.getElementById('pctCocina').value = 35;
+      document.getElementById('pctBanos').value = 7;
+      document.getElementById('diasAbiertos').value = 6;
+      document.getElementById('ocupacion').value = 75;
+      document.getElementById('ticketPromedio').value = 20000;
+
+      document.getElementById('checkAlmuerzo').checked = false;
+      document.getElementById('checkOnce').checked = false;
+      document.getElementById('checkCena').checked = false;
+
+      // Reset curva a moderado
+      selectCurva('moderado');
+
+      calcular();
+    }
+
+    function exportarPDF() {
+      alert('Función de exportación PDF en desarrollo');
+    }
+
+    function continuarAInversion() {
+      if (resultadosCache.ingresosAnuales.length === 0) {
+        alert('⚠️ Completa los campos para continuar');
+        return;
+      }
+
+      // Guardar datos en localStorage
+      const datos = {
+        ingresosAnuales: resultadosCache.ingresosAnuales,
+        ingresosMensuales: resultadosCache.ingresosMensuales,
+        totalSillas: resultadosCache.totalSillas,
+        comensalesDia: resultadosCache.comensalesDia
+      };
+
+      localStorage.setItem('datosIngresos', JSON.stringify(datos));
+
+      // Redirigir
+      window.location.href = 'calculadora-inversion.html';
+    }
+
+    // ==================== INICIALIZACIÓN ====================
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Renderizar mesas iniciales
+      renderMesas();
+
+      // 2. Listeners para inputs numéricos
+      const numericInputs = document.querySelectorAll('input[type="number"]:not([data-no-auto])');
+      numericInputs.forEach(input => {
+        input.addEventListener('input', calcular);
+        input.addEventListener('change', calcular);
+      });
+
+      // 3. Seleccionar método inicial
+      selectMethod('mesas');
+
+      // 4. Cálculo inicial
+      calcular();
+    });
+  </script>
+
+</body>
+</html>
