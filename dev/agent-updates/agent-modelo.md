@@ -15,6 +15,88 @@
 
 ---
 
-## Motor de cálculo financiero unificado
+## 2026-04-18 — En progreso
 
-_Sin updates aún. Este archivo se activa cuando el agente comienza a trabajar._
+**Hice:**
+Lectura completa del sistema (CONSTITUTION, AGENTS, FLUJOS, PROMPT-agent-modelo, este archivo). Análisis del motor actual en `calculadora-inversion v1.0.html`. Diseño de arquitectura para implementar los tres patrones inmobiliarios. Validación tributaria: la cascada sociedad → inversionista es estructuralmente idéntica a gastro cuando opera vía sociedad (que es el modelo SFI). Confirmación con el humano de los tres puntos de decisión arquitectónica.
+
+**Decisiones de arquitectura aprobadas por humano:**
+
+1. **Dos capas separadas** (aprobado ✅)
+   - Capa 1: Generadores de flujo por patrón → producen `distribuibleTotal`
+   - Capa 2: Cascada tributaria → reutilizada sin cambios desde gastro
+   - Orquestador: `getDividendoMensual(mes, patron, params)` — retrocompatible con firma actual
+
+2. **Tributación inmobiliaria** (investigado y resuelto ✅)
+   - Sociedad inmobiliaria SÍ paga Impuesto 1ª Categoría (25%) sobre rentas de arriendo
+   - Distribución posterior a inversionistas afecta a IGC o IA según domicilio
+   - Cascada tributaria del motor existente se reutiliza 100% para patrones inmobiliarios
+   - La diferencia con gastro: `distribuibleTotal` = arriendo neto directo (sin margen operacional)
+
+3. **Moneda** (aprobado ✅)
+   - Motor interno siempre en CLP (conversión UF × valorUF ocurre dentro del generador)
+   - Inputs de generadores inmobiliarios reciben valores en UF + `valorUF` como parámetro separado
+   - Output agrega `retornoMensualNetoUF = neto / valorUF` para que Agent-Inmobiliario maneje UI en UF sin hacer conversiones
+
+**Arquitectura de funciones a implementar:**
+
+```
+CAPA 1 — Generadores (nuevas funciones JS)
+├── getFlujoDividendosRecurrentes(mes, ingresos, margen, pctDistribuir)
+│     Extrae lógica existente de getDividendoMensual (sin cambios de comportamiento)
+├── getFlujoArriendoMensual(mes, arriendoBaseUF, ajusteAnualPct, plazoAnios, valorUF)
+│     → arriendoBaseUF × (1 + ajusteAnualPct/100)^floor((mes-1)/12) × valorUF
+│     → 0 si mes > plazoAnios × 12
+├── getFlujoVentaActivo(mes, mesVenta, precioVentaUF, valorUF)
+│     → 0 si mes ≠ mesVenta
+│     → precioVentaUF × valorUF si mes === mesVenta
+└── getFlujoHibrido(mes, arriendoBaseUF, ajusteAnualPct, mesVenta, precioVentaUF, valorUF)
+      → getFlujoArriendoMensual(mes, ...) + getFlujoVentaActivo(mes, ...)
+
+CAPA 2 — Cascada tributaria (extraída del código existente, sin cambios de comportamiento)
+└── aplicarCascadaTributaria(distribuibleTotal, pctSocMicroinv, pctEnSociedad,
+                              impuesto1Cat, retencion)
+      → { bruto, neto }
+
+ORQUESTADOR (reemplaza getDividendoMensual, retrocompatible)
+└── getDividendoMensual(mes, patron='dividendos-recurrentes', params, ...)
+      → { ingresoMes, distribuibleTotal, bruto, neto, netoUF }
+```
+
+**Inputs por patrón — contrato para Agent-Inmobiliario:**
+
+### arriendo-mensual
+| Nombre | Tipo | Unidad | Descripción |
+|--------|------|--------|-------------|
+| `arriendoBaseUF` | number | UF/mes | Arriendo mensual en mes 1 del contrato |
+| `ajusteAnualPct` | number | % | Reajuste aplicado cada 12 meses (ej: 3 = 3%) |
+| `plazoAnios` | integer | años | Duración del contrato; flujo = 0 después |
+| `valorUF` | number | CLP/UF | Tasa de conversión ingresada manualmente |
+
+### venta-activo
+| Nombre | Tipo | Unidad | Descripción |
+|--------|------|--------|-------------|
+| `precioVentaUF` | number | UF | Precio proyectado de venta |
+| `mesVenta` | integer | mes | Mes del evento de venta (ej: 60 = año 5) |
+| `valorUF` | number | CLP/UF | Tasa de conversión ingresada manualmente |
+| *(inversión inicial)* | — | UF | Va en `monto` del tier = precioCompraUF + costosAdicionalesUF |
+
+### hibrido
+| Nombre | Tipo | Unidad | Descripción |
+|--------|------|--------|-------------|
+| `arriendoBaseUF` | number | UF/mes | Arriendo mensual inicial |
+| `ajusteAnualPct` | number | % | Reajuste anual del arriendo |
+| `precioVentaUF` | number | UF | Precio de venta al final del período |
+| `mesVenta` | integer | mes | Define fin de arriendo Y evento de venta |
+| `valorUF` | number | CLP/UF | Tasa de conversión ingresada manualmente |
+
+**Dejé listo para:**
+- Agent-Inmobiliario: tabla de inputs por patrón lista para construir las herramientas de UI. Puede empezar a diseñar `calculadora-inversion-inmob.html` con estos inputs mientras yo implemento las funciones JS.
+- Agent-Gastro: ningún impacto esperado. La refactorización mantiene retrocompatibilidad total con `dividendos-recurrentes`.
+
+**Necesito de [Agent-Inmobiliario]:**
+- Confirmación de si `plazoAnios` en `arriendo-mensual` debe tener un valor máximo definido (10 años como el motor actual, o configurable más allá).
+- Confirmar si el evento de venta en `venta-activo` debe modelar también los costos de venta (comisión corredor ~2%, gastos notariales) como descuento sobre `precioVentaUF`, o si eso lo calcula la calculadora de remodelación antes de pasarlo al motor.
+
+**Próximo paso:**
+Implementar las cuatro funciones JS en `calculadora-inversion v1.0.html` (sección CÁLCULOS MATEMÁTICOS) y escribir update de completado con el diff exacto de lo que cambió.
