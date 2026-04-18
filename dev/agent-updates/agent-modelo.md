@@ -100,3 +100,66 @@ ORQUESTADOR (reemplaza getDividendoMensual, retrocompatible)
 
 **Próximo paso:**
 Implementar las cuatro funciones JS en `calculadora-inversion v1.0.html` (sección CÁLCULOS MATEMÁTICOS) y escribir update de completado con el diff exacto de lo que cambió.
+
+---
+
+## 2026-04-18 (2) — En progreso
+
+**Hice:**
+Checkpoint completo previo a refactorización mayor. Resolución de preguntas pendientes a Agent-Inmobiliario (plazo y costos de venta). Diseño de arquitectura modular aprobado por humano. Decisión de ampliar horizonte de 10 a 30 años.
+
+**Decisiones nuevas aprobadas por humano:**
+
+1. **Modularización del HTML monolítico** (aprobado ✅)
+   - El archivo `calculadora-inversion v1.0.html` (~1000 líneas) se divide en 4 archivos:
+     - `calculadora-inversion.html` → shell: solo estructura HTML + `<script src=...>`
+     - `engine.js` → motor puro, sin acceso al DOM
+     - `ui-inputs.js` → sidebar, tiers, validaciones, listeners
+     - `ui-results.js` → render cards, gráfico, detalle mensual, PDF
+     - `app.js` → bootstrap, lectura inputs, coordinación
+
+2. **Horizonte ampliado a 30 años** (aprobado ✅)
+   - Constantes únicas: `PLAZO_PROYECCION_ANIOS = 30`, `PLAZO_PROYECCION_MESES = 360`
+   - Todos los literales `120` del motor actual se reemplazan por `PLAZO_PROYECCION_MESES`
+   - Tramo Año 6–30: repite `ingresos.ao5` como estabilización (comportamiento actual mantenido)
+   - Razón: créditos bancarios inmobiliarios pueden tener plazos de 20–30 años
+
+3. **Costos de venta resueltos** (aprobado ✅)
+   - `costoVentaPct`: porcentaje sobre precio de venta, default 2% (corretaje + notaría)
+   - `costoVentaFijoCLP`: monto fijo en pesos, default $400.000
+   - Fórmula: `ventaNetaCLP = (precioVentaUF × valorUF) - (precioVentaUF × valorUF × costoVentaPct) - costoVentaFijoCLP`
+   - Aplica en `venta-activo` e `hibrido`. Ausente en `arriendo-mensual`.
+
+**Inputs actualizados para Agent-Inmobiliario:**
+
+| Input | Tipo | Default | Descripción |
+|---|---|---|---|
+| `patronFlujo` | enum | — | `'arriendo-mensual'` / `'venta-activo'` / `'hibrido'` |
+| `valorUF` | number CLP | — | Valor UF vigente al momento del cálculo |
+| `arriendoBaseUF` | number UF/mes | — | Arriendo mensual base del activo en UF |
+| `ajusteAnualPct` | number decimal | 0.03 | Reajuste anual del arriendo (ej: 3% = 0.03) |
+| `precioVentaUF` | number UF | — | Precio de salida del activo en UF |
+| `mesVenta` | integer 1–360 | — | Mes exacto de liquidación dentro del horizonte de 360 meses |
+| `costoVentaPct` | number decimal | 0.02 | Costo variable de venta (corretaje + notaría) |
+| `costoVentaFijoCLP` | number CLP | 400000 | Costo fijo de venta en pesos |
+
+**Inputs societarios y tributarios** (siguen siendo ingresados por el usuario en la UI):
+- `% sociedad microinversionistas`, `impuesto 1ª categoría`, `% retención`
+- Tiers (cantidad, monto, mes inversión, mes retornos)
+- Tasa de descuento
+
+**Orden de implementación:**
+1. Crear los 4 archivos separados a partir del HTML actual
+2. En `engine.js`, reemplazar literal `120` → `PLAZO_PROYECCION_MESES = 360`
+3. Agregar funciones inmobiliarias y `aplicarCascadaTributaria()` a `engine.js`
+4. Entregar archivos completos al humano para subida manual al repo
+
+**Dejé listo para:**
+- Agent-Inmobiliario: tabla de inputs definitiva (incluyendo costos de venta y horizonte 360 meses) lista para construir calculadoras de UI.
+- Agent-Gastro: sin impacto. Retrocompatibilidad total garantizada.
+
+**Necesito de [Agent-Inmobiliario]:**
+- Nada bloqueante. Puede arrancar con el diseño de UI en paralelo usando la tabla de inputs de este checkpoint.
+
+**Próximo paso:**
+Entregar los 4 archivos completos (`engine.js`, `ui-inputs.js`, `ui-results.js`, `app.js` + HTML shell) listos para reemplazar el monolito actual.
