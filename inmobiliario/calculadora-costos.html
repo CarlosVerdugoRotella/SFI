@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Costos — SFI</title>
+  <style>
+    :root {
+      --bg-primary: #FAFBFC;
+      --bg-card: #FFFFFF;
+      --border-default: #E5E7EB;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+      --text-tertiary: #9CA3AF;
+      --primary: #1E40AF;
+      --primary-hover: #1E3A8A;
+      --success: #047857;
+      --success-hover: #065f46;
+      --warning: #D97706;
+      --error: #DC2626;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 2px 4px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 8px rgba(0,0,0,0.08);
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-lg: 16px;
+      --space-xl: 20px;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 140px;
+    }
+
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-default);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: var(--space-xl);
+    }
+
+    .section {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-md);
+      border-bottom: 2px solid var(--border-default);
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      margin-top: var(--space-lg);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-group { margin-bottom: var(--space-lg); }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      height: 40px;
+      padding: 0 var(--space-md);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+    }
+
+    .input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+    .input-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); }
+    .input-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: var(--space-md); }
+
+    .info-box {
+      background: #EFF6FF;
+      border: 1px solid #DBEAFE;
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .info-box.warning {
+      background: #FEF3C7;
+      border-color: #FDE68A;
+    }
+
+    .info-box-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .info-box.warning .info-box-title { color: var(--warning); }
+
+    .info-box-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .cost-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 60px;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      align-items: end;
+    }
+
+    .btn-remove {
+      height: 40px;
+      border: 1px solid var(--error);
+      background: white;
+      color: var(--error);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .btn-remove:hover {
+      background: var(--error);
+      color: white;
+    }
+
+    .btn-add-row {
+      width: 100%;
+      height: 40px;
+      border: 2px dashed var(--border-default);
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: var(--space-sm);
+    }
+
+    .btn-add-row:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(30,64,175,0.05);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    .metric-card {
+      background: #F9FAFB;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-value.success { color: var(--success); }
+    .metric-value.error { color: var(--error); }
+    .metric-value.primary { color: var(--primary); }
+
+    .footer-sticky {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 118px;
+      background: linear-gradient(to top, #ffffff 0%, #f8f9fa 100%);
+      border-top: 2px solid var(--border-default);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+      padding: var(--space-lg);
+      z-index: 999;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .footer-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    .footer-metric {
+      text-align: center;
+    }
+
+    .footer-metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .footer-metric-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footer-metric-value.success { color: var(--success); }
+    .footer-metric-value.error { color: var(--error); }
+    .footer-metric-value.primary { color: var(--primary); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border-default);
+    }
+
+    .footer-indicators {
+      display: flex;
+      gap: var(--space-lg);
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      height: 36px;
+      padding: 0 var(--space-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+    }
+
+    .btn-secondary:hover {
+      background: #F9FAFB;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: var(--success-hover); }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 900px) {
+      .input-grid-2,
+      .input-grid-3,
+      .input-grid-4,
+      .metric-grid,
+      .footer-metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .cost-row {
+        grid-template-columns: 1fr;
+      }
+
+      .container { padding: var(--space-md); }
+    }
+
+    @media (max-width: 640px) {
+      .input-grid-2,
+      .input-grid-3,
+      .input-grid-4,
+      .metric-grid,
+      .footer-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+      }
+
+      .footer-sticky {
+        height: auto;
+      }
+
+      body {
+        padding-bottom: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>🧱 Calculadora de Costos Inmobiliarios</h1>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="copiarResumen()">📋 Copiar</button>
+      <button class="btn btn-secondary" onclick="limpiarTodo()">🗑️ Limpiar</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <section class="section">
+      <h2 class="section-title">Base del Proyecto</h2>
+
+      <div class="info-box">
+        <div class="info-box-title">Objetivo</div>
+        <div class="info-box-text">
+          Esta herramienta calcula el costo total para llevar una casa desde su estado actual hasta su estado objetivo, lista para arrendar o vender.
+        </div>
+      </div>
+
+      <div class="input-grid-4">
+        <div class="input-group">
+          <label for="valorUF">Valor UF</label>
+          <input type="number" id="valorUF" min="1000" step="1" value="38500" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="precioCompraUF">Precio compra (UF)</label>
+          <input type="number" id="precioCompraUF" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="vobUF">Valor objetivo mercado / VOB (UF)</label>
+          <input type="number" id="vobUF" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="duracionMeses">Duración proyecto (meses)</label>
+          <input type="number" id="duracionMeses" min="0" step="1" value="6" oninput="calcular()">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">A. Costos de Compra</h2>
+
+      <div class="input-grid-4">
+        <div class="input-group">
+          <label for="pctNotaria">Notaría / CBR (%)</label>
+          <input type="number" id="pctNotaria" min="0" step="0.01" value="1.00" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="pctComisionCompra">Comisión compra (%)</label>
+          <input type="number" id="pctComisionCompra" min="0" step="0.01" value="0.00" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="otrosCompraUF">Otros gastos compra (UF)</label>
+          <input type="number" id="otrosCompraUF" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label>Total compra asociado</label>
+          <input type="text" id="totalCompraDisplay" disabled value="0 UF">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">B. Arquitectura y Permisos</h2>
+      <div id="arquitecturaContainer"></div>
+      <button class="btn-add-row" onclick="agregarFila('arquitectura')">+ Agregar costo arquitectura / permiso</button>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">C. Construcción y Remodelación</h2>
+      <div id="construccionContainer"></div>
+      <button class="btn-add-row" onclick="agregarFila('construccion')">+ Agregar costo construcción</button>
+
+      <div class="section-subtitle">Imprevistos</div>
+      <div class="input-grid-3">
+        <div class="input-group">
+          <label for="pctImprevistos">Imprevistos sobre construcción (%)</label>
+          <input type="number" id="pctImprevistos" min="0" step="0.1" value="10" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label>Imprevistos calculados (UF)</label>
+          <input type="text" id="imprevistosDisplay" disabled value="0 UF">
+        </div>
+        <div class="input-group">
+          <label>Construcción + imprevistos</label>
+          <input type="text" id="construccionTotalDisplay" disabled value="0 UF">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">D. Holding / Mantención Proyecto</h2>
+
+      <div class="input-grid-4">
+        <div class="input-group">
+          <label for="contribucionesMensualesUF">Contribuciones mensuales (UF)</label>
+          <input type="number" id="contribucionesMensualesUF" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="gastosBasicosMensualesUF">Gastos básicos mensuales (UF)</label>
+          <input type="number" id="gastosBasicosMensualesUF" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="otrosHoldingMensualesUF">Otros holding mensuales (UF)</label>
+          <input type="number" id="otrosHoldingMensualesUF" min="0" step="0.01" value="0" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label>Total holding (UF)</label>
+          <input type="text" id="holdingTotalDisplay" disabled value="0 UF">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Resumen Ejecutivo</h2>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">Compra + cierre</div>
+          <div class="metric-value" id="metricCompraUF">0 UF</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Arquitectura / permisos</div>
+          <div class="metric-value" id="metricArquitecturaUF">0 UF</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Construcción total</div>
+          <div class="metric-value" id="metricConstruccionUF">0 UF</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Holding</div>
+          <div class="metric-value" id="metricHoldingUF">0 UF</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Costo total proyecto</div>
+          <div class="metric-value primary" id="metricCostoTotalUF">0 UF</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Costo total proyecto (CLP)</div>
+          <div class="metric-value" id="metricCostoTotalCLP">$0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Gap bruto</div>
+          <div class="metric-value" id="metricGapBrutoUF">0 UF</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Gap neto post-costos</div>
+          <div class="metric-value success" id="metricGapNetoUF">0 UF</div>
+        </div>
+      </div>
+
+      <div class="info-box warning" style="margin-top: 16px;">
+        <div class="info-box-title">Interpretación</div>
+        <div class="info-box-text" id="interpretacionTexto">
+          Ingresa valores para evaluar si el delta entre compra y VOB resiste todos los costos del proyecto.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="footer-sticky">
+    <div class="footer-content">
+      <div class="footer-metrics">
+        <div class="footer-metric">
+          <div class="footer-metric-label">Compra</div>
+          <div class="footer-metric-value" id="footerCompra">0 UF</div>
+        </div>
+        <div class="footer-metric">
+          <div class="footer-metric-label">Construcción</div>
+          <div class="footer-metric-value" id="footerConstruccion">0 UF</div>
+        </div>
+        <div class="footer-metric">
+          <div class="footer-metric-label">Costo Total</div>
+          <div class="footer-metric-value primary" id="footerCostoTotal">0 UF</div>
+        </div>
+        <div class="footer-metric">
+          <div class="footer-metric-label">Gap Neto</div>
+          <div class="footer-metric-value success" id="footerGapNeto">0 UF</div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-indicators">
+          <span>🧱 Proyecto listo para costo total</span>
+          <span id="footerIndicadorClp">$0 CLP</span>
+        </div>
+        <div class="footer-actions">
+          <button class="btn btn-secondary" onclick="copiarResumen()">📋 Copiar</button>
+          <button class="btn btn-success" onclick="continuarABalance()">📈 Continuar a Balance →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let arquitecturaRows = [];
+    let construccionRows = [];
+    let rowCounter = 0;
+
+    function formatUF(num) {
+      return new Intl.NumberFormat('es-CL', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(num) + ' UF';
+    }
+
+    function formatCLP(num) {
+      return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        maximumFractionDigits: 0
+      }).format(num);
+    }
+
+    function getNumber(id) {
+      return parseFloat(document.getElementById(id)?.value) || 0;
+    }
+
+    function agregarFila(tipo, nombre = '', monto = 0, unidad = 'UF') {
+      rowCounter++;
+      const row = { id: rowCounter, tipo, nombre, monto, unidad };
+
+      if (tipo === 'arquitectura') arquitecturaRows.push(row);
+      if (tipo === 'construccion') construccionRows.push(row);
+
+      renderFilas();
+      calcular();
+    }
+
+    function eliminarFila(tipo, id) {
+      if (tipo === 'arquitectura') arquitecturaRows = arquitecturaRows.filter(r => r.id !== id);
+      if (tipo === 'construccion') construccionRows = construccionRows.filter(r => r.id !== id);
+      renderFilas();
+      calcular();
+    }
+
+    function renderFilas() {
+      renderContainer('arquitecturaContainer', arquitecturaRows, 'arquitectura');
+      renderContainer('construccionContainer', construccionRows, 'construccion');
+    }
+
+    function renderContainer(containerId, rows, tipo) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      rows.forEach(row => {
+        const div = document.createElement('div');
+        div.className = 'cost-row';
+        div.innerHTML = `
+          <div class="input-group" style="margin:0;">
+            <label>Descripción</label>
+            <input type="text" value="${row.nombre}" placeholder="Ej: Arquitecto, cocina, baños, pintura"
+              oninput="actualizarFila('${tipo}', ${row.id}, 'nombre', this.value)">
+          </div>
+          <div class="input-group" style="margin:0;">
+            <label>Monto</label>
+            <input type="number" value="${row.monto}" min="0" step="0.01"
+              oninput="actualizarFila('${tipo}', ${row.id}, 'monto', this.value)">
+          </div>
+          <div class="input-group" style="margin:0;">
+            <label>Unidad</label>
+            <select onchange="actualizarFila('${tipo}', ${row.id}, 'unidad', this.value)">
+              <option value="UF" ${row.unidad === 'UF' ? 'selected' : ''}>UF</option>
+              <option value="CLP" ${row.unidad === 'CLP' ? 'selected' : ''}>CLP</option>
+            </select>
+          </div>
+          <button class="btn-remove" onclick="eliminarFila('${tipo}', ${row.id})">×</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function actualizarFila(tipo, id, field, value) {
+      const rows = tipo === 'arquitectura' ? arquitecturaRows : construccionRows;
+      const row = rows.find(r => r.id === id);
+      if (!row) return;
+      row[field] = field === 'monto' ? parseFloat(value) || 0 : value;
+      calcular();
+    }
+
+    function totalRowsEnUF(rows, valorUF) {
+      return rows.reduce((acc, row) => {
+        const monto = parseFloat(row.monto) || 0;
+        if (row.unidad === 'CLP') return acc + (valorUF > 0 ? monto / valorUF : 0);
+        return acc + monto;
+      }, 0);
+    }
+
+    function calcular() {
+      const valorUF = getNumber('valorUF');
+      const precioCompraUF = getNumber('precioCompraUF');
+      const vobUF = getNumber('vobUF');
+      const duracionMeses = getNumber('duracionMeses');
+
+      const pctNotaria = getNumber('pctNotaria') / 100;
+      const pctComisionCompra = getNumber('pctComisionCompra') / 100;
+      const otrosCompraUF = getNumber('otrosCompraUF');
+
+      const notariaUF = precioCompraUF * pctNotaria;
+      const comisionCompraUF = precioCompraUF * pctComisionCompra;
+      const totalCompraAsociadoUF = notariaUF + comisionCompraUF + otrosCompraUF;
+
+      const totalArquitecturaUF = totalRowsEnUF(arquitecturaRows, valorUF);
+      const totalConstruccionBaseUF = totalRowsEnUF(construccionRows, valorUF);
+
+      const pctImprevistos = getNumber('pctImprevistos') / 100;
+      const imprevistosUF = totalConstruccionBaseUF * pctImprevistos;
+      const totalConstruccionUF = totalConstruccionBaseUF + imprevistosUF;
+
+      const contribucionesMensualesUF = getNumber('contribucionesMensualesUF');
+      const gastosBasicosMensualesUF = getNumber('gastosBasicosMensualesUF');
+      const otrosHoldingMensualesUF = getNumber('otrosHoldingMensualesUF');
+      const holdingMensualUF = contribucionesMensualesUF + gastosBasicosMensualesUF + otrosHoldingMensualesUF;
+      const totalHoldingUF = holdingMensualUF * duracionMeses;
+
+      const costoTotalProyectoUF = totalCompraAsociadoUF + totalArquitecturaUF + totalConstruccionUF + totalHoldingUF;
+      const costoTotalProyectoCLP = costoTotalProyectoUF * valorUF;
+
+      const gapBrutoUF = vobUF - precioCompraUF;
+      const gapNetoUF = gapBrutoUF - costoTotalProyectoUF;
+      const gapNetoCLP = gapNetoUF * valorUF;
+
+      document.getElementById('totalCompraDisplay').value = formatUF(totalCompraAsociadoUF);
+      document.getElementById('imprevistosDisplay').value = formatUF(imprevistosUF);
+      document.getElementById('construccionTotalDisplay').value = formatUF(totalConstruccionUF);
+      document.getElementById('holdingTotalDisplay').value = formatUF(totalHoldingUF);
+
+      document.getElementById('metricCompraUF').textContent = formatUF(totalCompraAsociadoUF);
+      document.getElementById('metricArquitecturaUF').textContent = formatUF(totalArquitecturaUF);
+      document.getElementById('metricConstruccionUF').textContent = formatUF(totalConstruccionUF);
+      document.getElementById('metricHoldingUF').textContent = formatUF(totalHoldingUF);
+      document.getElementById('metricCostoTotalUF').textContent = formatUF(costoTotalProyectoUF);
+      document.getElementById('metricCostoTotalCLP').textContent = formatCLP(costoTotalProyectoCLP);
+      document.getElementById('metricGapBrutoUF').textContent = formatUF(gapBrutoUF);
+      document.getElementById('metricGapNetoUF').textContent = formatUF(gapNetoUF);
+
+      const gapNetoEl = document.getElementById('metricGapNetoUF');
+      gapNetoEl.classList.remove('success', 'error');
+      gapNetoEl.classList.add(gapNetoUF >= 0 ? 'success' : 'error');
+
+      document.getElementById('footerCompra').textContent = formatUF(totalCompraAsociadoUF);
+      document.getElementById('footerConstruccion').textContent = formatUF(totalConstruccionUF);
+      document.getElementById('footerCostoTotal').textContent = formatUF(costoTotalProyectoUF);
+      document.getElementById('footerGapNeto').textContent = formatUF(gapNetoUF);
+      document.getElementById('footerGapNeto').classList.remove('success', 'error');
+      document.getElementById('footerGapNeto').classList.add(gapNetoUF >= 0 ? 'success' : 'error');
+      document.getElementById('footerIndicadorClp').textContent = `${formatCLP(costoTotalProyectoCLP)} costo total`;
+
+      const interpretacion = document.getElementById('interpretacionTexto');
+      if (precioCompraUF === 0 || vobUF === 0) {
+        interpretacion.textContent = 'Ingresa precio de compra y VOB para medir si el proyecto resiste sus costos.';
+      } else if (gapNetoUF > 0) {
+        interpretacion.textContent = `El proyecto todavía deja un delta positivo estimado de ${formatUF(gapNetoUF)} (${formatCLP(gapNetoCLP)}) después de todos los costos.`;
+      } else if (gapNetoUF === 0) {
+        interpretacion.textContent = 'El proyecto queda exactamente en punto de equilibrio después de todos los costos estimados.';
+      } else {
+        interpretacion.textContent = `Los costos consumen completamente el delta y dejan un resultado negativo de ${formatUF(gapNetoUF)} (${formatCLP(gapNetoCLP)}).`;
+      }
+    }
+
+    function copiarResumen() {
+      const texto = [
+        'CALCULADORA DE COSTOS INMOBILIARIOS',
+        `Valor UF: ${getNumber('valorUF')}`,
+        `Precio compra UF: ${getNumber('precioCompraUF')}`,
+        `VOB UF: ${getNumber('vobUF')}`,
+        `Duración (meses): ${getNumber('duracionMeses')}`,
+        `Compra + cierre: ${document.getElementById('metricCompraUF').textContent}`,
+        `Arquitectura / permisos: ${document.getElementById('metricArquitecturaUF').textContent}`,
+        `Construcción total: ${document.getElementById('metricConstruccionUF').textContent}`,
+        `Holding: ${document.getElementById('metricHoldingUF').textContent}`,
+        `Costo total proyecto: ${document.getElementById('metricCostoTotalUF').textContent}`,
+        `Costo total CLP: ${document.getElementById('metricCostoTotalCLP').textContent}`,
+        `Gap bruto: ${document.getElementById('metricGapBrutoUF').textContent}`,
+        `Gap neto: ${document.getElementById('metricGapNetoUF').textContent}`
+      ].join('\n');
+
+      navigator.clipboard.writeText(texto)
+        .then(() => alert('✅ Resumen copiado'))
+        .catch(() => alert('❌ No se pudo copiar'));
+    }
+
+    function limpiarTodo() {
+      if (!confirm('¿Seguro que quieres limpiar todos los valores?')) return;
+      document.querySelectorAll('input').forEach(input => {
+        if (input.type === 'number') {
+          if (input.id === 'valorUF') input.value = 38500;
+          else if (input.id === 'duracionMeses') input.value = 6;
+          else if (input.id === 'pctNotaria') input.value = 1.00;
+          else if (input.id === 'pctComisionCompra') input.value = 0.00;
+          else if (input.id === 'pctImprevistos') input.value = 10;
+          else input.value = 0;
+        }
+      });
+      arquitecturaRows = [];
+      construccionRows = [];
+      renderFilas();
+      calcular();
+    }
+
+    function continuarABalance() {
+      alert('Siguiente paso: construir la Herramienta 3 (Balance Final) conectando compra + costos + VOB.');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      agregarFila('arquitectura', 'Arquitecto', 0, 'UF');
+      agregarFila('construccion', 'Remodelación general', 0, 'UF');
+      calcular();
+    });
+  </script>
+
+</body>
+</html>
