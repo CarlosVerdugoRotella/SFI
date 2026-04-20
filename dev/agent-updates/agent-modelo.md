@@ -15,6 +15,71 @@
 
 ---
 
+## 2026-04-20 — En progreso (Checkpoint)
+
+**Hice:**
+Construcción completa de `inmobiliario/calculadora-inversion-inmob.html` y sus 4 módulos JS.
+
+**Archivos entregados al repo (branch main):**
+
+| Archivo | SHA | Descripción |
+|---|---|---|
+| `inmobiliario/calculadora-inversion-inmob.html` | `9f070d0` | Shell HTML completo — estructura, CSS, 5 scripts wireados |
+| `inmobiliario/ui-inputs.js` | `66d8fe1` | Tiers dinámicos, prellenado H3, listeners sidebar |
+| `inmobiliario/ui-results.js` | `141911e` | Cards 10 métricas (UF+CLP), tabla 8 cols, gráfico VAN |
+| `inmobiliario/app.js` | `bcc1803` | `calcularTodo()`, `leerInputs()`, `DOMContentLoaded`, `exportarPDF()` |
+| `inmobiliario/sfi-state.js` | `f388782` | Stub con `loadH3Params()` y `getPropiedad()` |
+
+**Decisiones técnicas tomadas en esta sesión:**
+
+1. **Sin selector de patrón en UI** — patrón siempre híbrido unificado (arriendo + venta). Los valores en 0 desactivan cada rama. Más robusto que show/hide condicional.
+
+2. **`../gastro/engine.js` sin copiar** — ruta relativa desde `inmobiliario/`. El HTML incluye comentario de fallback: si GitHub Pages da 404, copiar engine y actualizar este update.
+
+3. **Banner H3 colapsable** — solo visible si `SFI.loadH3Params()` devuelve datos. Muestra: patrón, precio compra, costos totales, VOB, gap neto, inversión base.
+
+4. **Inputs prellenados desde H3 con clase `.from-h3`** — fondo azul claro (`#EFF6FF`) para distinguir valores importados de manuales.
+
+5. **`detalleState` vive en `app.js`** — no en `ui-results.js`, para evitar conflicto de scope entre archivos.
+
+6. **Tabla detalle: 8 columnas** — Mes / Año.Mes / Bruto UF / Bruto CLP / Neto UF / Neto CLP / Acum. CLP / Nota. Fila `venta-row` (amarilla) en mes de venta. Fila `payback-row` (verde) en mes de payback.
+
+7. **`renderChart()` usa `Map()`** — lookup O(1) de flujos netos por mes. 120 puntos trimestrales × 360 flujos sin lag perceptible.
+
+8. **`PLAZO_INMOB_MESES = 360`** — constante en `app.js`, análoga a `PLAZO_PROYECCION_MESES` del gastro. Nombrada distinta para evitar colisión si ambos engine.js y app.js están en scope simultáneo.
+
+**Contrato H3 → Motor implementado:**
+
+`SFI.loadH3Params()` devuelve (o null):
+- `arriendoBaseUF`, `ajusteAnualPct`, `plazoAnios` → patrón arriendo
+- `precioVentaUF`, `mesVenta`, `costoVentaPct`, `costoVentaFijoCLP` → patrón venta
+- `valorUF` → conversión CLP en toda la UI
+- `patronSalida` → pre-selección (ignorado — UI usa híbrido siempre)
+- `nombre` (o `propiedadId`) → banner H3; se lee con `SFI.getPropiedad(id).nombre` si no viene directo
+
+**Métricas resumen (6 KPIs sticky):**
+Capital Levantado / Payback Promedio Ponderado / ROI Promedio / TIR Promedio / VAN Total / Arriendo Neto mes (UF + CLP)
+
+**Métricas por card de tier (10):**
+Capital Total Tier (CLP+UF) / % Fondo Microinv. / % Inmobiliaria / Arriendo Neto UF / Arriendo Neto CLP / Retiro Prom. / ROI Anual / Payback Real / TIR 30 años / VAN
+
+**Dejé listo para:**
+- Smoke test visual en browser (ningún agente — tarea del humano o QA)
+- Agent-Inmobiliario: si necesita conectar `sfi-state.js` al `balance-final.html` real, el stub ya define la firma correcta
+
+**Necesito de [Agent-Inmobiliario]:**
+Confirmar que `balance-final.html` exporta `SFI.loadH3Params()` con los campos listados arriba. El stub actual asume esa firma — si la firma difiere, hay que ajustar `sfi-state.js`.
+
+**Próximos pasos pendientes:**
+
+1. 🔴 **Smoke test** — abrir `calculadora-inversion-inmob.html` en browser, verificar que no explota sin H3 ni con H3
+2. 🔴 **Verificar ruta engine** en GitHub Pages live — si 404, copiar `gastro/engine.js` → `inmobiliario/engine.js` y actualizar `<script src>` en HTML
+3. 🟠 **`sfi-state.js` real** — conectar stub al estado de `balance-final.html` (tarea Agent-Inmobiliario)
+4. 🟡 **`exportarPDF()`** — revisar output de html2pdf con el panel de resultados real
+5. 🟡 **Update `dev/agent-updates/agent-inmobiliario.md`** — notificar firma de `loadH3Params()` esperada
+
+---
+
 ## 2026-04-18 — Completado
 
 **Hice:**
