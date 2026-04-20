@@ -2,27 +2,196 @@
 
 ---
 
-## 2026-04-19 — CHECKPOINT EN PROGRESO
+## 2026-04-20 — COMPLETADO ✅
 
-**Hice:**
-- Subí `inmobiliario/sensibilizador-propiedades.html` v1.0 — comparador de propiedades con Gap Bruto, VOB, tabla ordenable, tags Oportunidad/Comparable (commit `3314ce7`)
-- Subí `inmobiliario/calculadora-costos.html` v1.0 — calculadora de costos con bloques: Compra, Arquitectura/Permisos, Construcción/Remodelación, Holding. Gap Neto = VOB − Precio − Costos. Footer sticky con métricas live (commit `3d2bc1f`)
-- Subí `inmobiliario/sfi-state.js` — state manager vía localStorage para pasar datos entre H1→H2→H3. Define `SFI.saveH1()`, `SFI.loadH1()`, `SFI.saveH2()`, `SFI.loadH2()` (commit `503a372`)
+### Qué se hizo
 
-**Dejé listo para:**
-- H1 y H2 son funcionales de forma standalone — se pueden usar en GitHub Pages ya
-- `sfi-state.js` está listo para ser consumido por los 3 archivos
+- Rediseño completo de `sfi-state.js` → **v2** (commit `b1eef05`)
+  - API eliminada: `saveH1/loadH1/saveH2/loadH2`
+  - API nueva: `savePropiedad`, `loadPropiedades`, `savePropiedad`, `saveCostos`, `getPropiedad`, `deletePropiedad`, `loadOportunidades`, `saveH3Params`, `loadH3Params`, `saveValorUF`, `loadValorUF`, `clearAll`, `debug`
+  - Cada propiedad tiene costos embebidos y `gapNetoUF` recalculado automáticamente por `saveCostos()`
 
-**Pendiente en mi dominio:**
-1. Actualizar `sensibilizador-propiedades.html` — integrar `sfi-state.js`: agregar `<script src="sfi-state.js">`, llamar `SFI.saveH1()` al recalcular, añadir botón "→ Continuar a Costos"
-2. Actualizar `calculadora-costos.html` — integrar `sfi-state.js`: precargar campos desde `SFI.loadH1()`, llamar `SFI.saveH2()` al calcular, añadir botón "→ Continuar a Balance"
-3. Crear `inmobiliario/balance-final.html` (H3) — lee H1+H2 vía `SFI.loadH1()` + `SFI.loadH2()`, arma balance final: Precio Compra + Costos Totales vs VOB, gap neto, ROI estimado, recomendación
+- Creado `inmobiliario/costos-modal.js` (commit `eda8c99`)
+  - Modal reutilizable para editar costos de cualquier propiedad
+  - Bloques: Compra (notaría + comisión + otros), Arquitectura/Permisos (filas dinámicas), Construcción/Remodelación (filas dinámicas + % imprevistos), Holding (contribuciones + gastos básicos + otros por duración)
+  - Persiste en `SFI.saveCostos(id, costos)` y dispara evento DOM `sfi:costos-saved` para que H1 actualice el badge y el gap neto en la card
 
-**Nomenclatura real vs PROMPT:**
-- El PROMPT describe `calculadora-remodelacion.html` y `calculadora-inversion-inmob.html` como H2 y H3
-- En la implementación real decidimos con el operador renombrar: H2 = `calculadora-costos.html`, H3 = `balance-final.html`
-- El PROMPT-agent-inmobiliario.md debe actualizarse para reflejar esta nomenclatura cuando H3 esté listo
+- Actualizado `sensibilizador-propiedades.html` → **v2** (commit `3dd4c6a`)
+  - Integración completa con `sfi-state.js` y `costos-modal.js`
+  - Nuevo campo por propiedad: `arriendoEstimadoUF` (UF/mes)
+  - Badge por card: `Costos guardados` / `Pendiente costos`
+  - Gap neto visible en cada card (lee `gapNetoUF` desde estado)
+  - Tabla comparativa ampliada: columnas `Arriendo` y `Gap Neto` ordenables
+  - Botón `Seleccionar para H3` por oportunidad → navega a `balance-final.html`
+  - Barra sticky con conteo de propiedades, oportunidades y con costos
+  - Persiste todas las propiedades en `SFI.savePropiedad()` y rehidrata al cargar
 
-**Necesito de Agent-Modelo:** nada por ahora — las 3 herramientas son standalone sin motor societario
+- Creado `inmobiliario/balance-final.html` — **H3** (commit `c49b374`)
+  - Lee oportunidades desde `SFI.loadOportunidades()`
+  - Selector de patrón de salida: `arriendo-mensual` / `venta-activo` / `hibrido`
+  - Captura parámetros que el motor (engine.js) necesita y que H1/H2 no tienen: `ajusteAnualPct`, `plazoAnios`, `mesVenta`, `costoVentaPct`, `costoVentaFijoCLP`
+  - Calcula métricas operativas: inversión base, venta neta, utilidad venta, ROI, yield bruto, yield sobre inversión, payback simple
+  - Tabla de campos exportados con semáforo de completitud por campo
+  - Tabla explícita de los datos que la calculadora de inversión debe seguir pidiendo en su propia UI
+  - Guarda paquete completo en `SFI.saveH3Params(data)` al presionar "Guardar outputs"
 
-**Próximo paso:** subir los 3 archivos pendientes (integración H1, integración H2, nuevo H3) en el próximo hilo
+---
+
+### Arquitectura adoptada: flujo H1 → costos-modal → H3
+
+**Decisión clave:** `calculadora-costos.html` (herramienta standalone de la entrega original) fue reemplazada funcionalmente por `costos-modal.js`, un modal embebido en H1. Esto evita navegación innecesaria: el usuario carga costos sin salir del sensibilizador.
+
+**El flujo real es:**
+```
+H1: sensibilizador-propiedades.html
+  ↓ por propiedad, abre modal:
+  costos-modal.js  →  SFI.saveCostos(id, costos)  →  gapNetoUF recalculado
+  ↓ botón "Seleccionar para H3" o botón sticky "Continuar a Balance"
+H3: balance-final.html
+  ↓ SFI.saveH3Params(data)
+  ↓ (futuro) calculadora-inversion-inmob.html lee SFI.loadH3Params()
+```
+
+**Estructura de `sfi-state` por propiedad:**
+```js
+{
+  id, nombre, tipo, estado,
+  precioUF, vobUF, vobM2,
+  m2Construido, m2Terreno, m2Exterior,
+  dormitorios, banos, link,
+  arriendoEstimadoUF,   // ← nuevo campo H1
+  ufM2, vobUfM2, gapBrutoUF,
+  costos: {             // ← embebido desde costos-modal.js
+    duracionMeses,
+    totalCompraUF, totalArquitecturaUF,
+    totalConstruccionUF, totalHoldingUF, costoTotalUF,
+    detalle: { ... }
+  } | null,
+  gapNetoUF             // ← recalculado por saveCostos()
+}
+```
+
+**Estructura de `sfi-state.h3` (paquete exportado desde H3):**
+```js
+{
+  propiedadId,
+  patronSalida,          // 'arriendo-mensual' | 'venta-activo' | 'hibrido'
+  // heredados de H1/costos
+  precioCompraUF,
+  costosTotalesUF,
+  gapBrutoUF, gapNetoUF,
+  arriendoBaseUF,        // ← arriendoEstimadoUF de H1
+  precioVentaUF,         // ← vobUF de H1
+  valorUF,
+  inversionBaseUF,       // precioCompraUF + costosTotalesUF
+  // capturados en H3
+  ajusteAnualPct,        // ← nuevo
+  plazoAnios,            // ← nuevo
+  mesVenta,              // ← nuevo
+  costoVentaPct,         // ← nuevo, default 0.02
+  costoVentaFijoCLP,     // ← nuevo, default 400.000
+  // calculados en H3 (preview)
+  ventaNetaUF, utilidadVentaUF, roiVenta,
+  arriendoAnualUF, yieldBruto, yieldSobreInversion, paybackAnios
+}
+```
+
+---
+
+### Lo que la calculadora de inversión inmobiliaria debe incorporar
+
+`calculadora-inversion-inmob.html` es el siguiente paso. Debe importar `../gastro/engine.js` (o copiarlo a `inmobiliario/`) y estructurarse igual que `gastro/calculadora-inversion.html` con estos delta:
+
+**1. Prellenado desde H3**
+Al cargar, leer `SFI.loadH3Params()` y prellenar automáticamente:
+
+| Input de la calculadora | Fuente en h3Params |
+|---|---|
+| `arriendoBaseUF` | `h3.arriendoBaseUF` |
+| `ajusteAnualPct` | `h3.ajusteAnualPct` |
+| `plazoAnios` | `h3.plazoAnios` |
+| `precioVentaUF` | `h3.precioVentaUF` |
+| `mesVenta` | `h3.mesVenta` |
+| `costoVentaPct` | `h3.costoVentaPct` |
+| `costoVentaFijoCLP` | `h3.costoVentaFijoCLP` |
+| `valorUF` | `h3.valorUF` |
+| Inversión total tiers (suma) | `h3.inversionBaseUF × valorUF` como referencia visible |
+
+**2. Selector de patrón de salida**
+En la sidebar de inputs, antes de los tiers, agregar:
+```
+Patrón de salida: [ arriendo-mensual | venta-activo | híbrido ]
+```
+Mostrar/ocultar campos según patrón (igual que en H3).
+Preseleccionar con `h3.patronSalida`.
+
+**3. Llamada al orquestador del motor**
+En `getDividendoMensual()`, pasar:
+```js
+patron: h3.patronSalida,
+inmobParams: {
+  arriendoBaseUF: h3.arriendoBaseUF,
+  ajusteAnualPct: h3.ajusteAnualPct,
+  plazoAnios: h3.plazoAnios,
+  precioVentaUF: h3.precioVentaUF,
+  mesVenta: h3.mesVenta,
+  costoVentaPct: h3.costoVentaPct,
+  costoVentaFijoCLP: h3.costoVentaFijoCLP,
+  valorUF: h3.valorUF
+}
+```
+
+**4. Inputs societarios que el usuario sigue ingresando en la calculadora** (no vienen de H3)
+- Tiers: cantidad, monto individual (CLP o UF), mes inversión, mes inicio retornos, tipo holder
+- `pctSocMicroinv`, `pctEnSociedad`, `impuesto1Cat`, `retencion`
+- `tasaDescuento` para VAN
+
+**5. Banner informativo**
+Si `SFI.loadH3Params()` está disponible, mostrar un banner colapsable al inicio:
+```
+🏠 Datos pre-cargados desde Balance Final H3
+   Propiedad: [nombre]  Patrón: [patron]  Compra: [X UF]  Costos: [Y UF]  VOB: [Z UF]
+```
+Si no hay H3, la calculadora debe funcionar igual que la versión gastro — inputs manuales.
+
+---
+
+### Estado de archivos del flujo inmobiliario
+
+| Archivo | Estado | Commit |
+|---|---|---|
+| `inmobiliario/sfi-state.js` | ✅ v2 funcional | `b1eef05` |
+| `inmobiliario/costos-modal.js` | ✅ funcional | `eda8c99` |
+| `inmobiliario/sensibilizador-propiedades.html` | ✅ v2 integrado | `3dd4c6a` |
+| `inmobiliario/balance-final.html` | ✅ H3 listo | `c49b374` |
+| `inmobiliario/calculadora-inversion-inmob.html` | 🔲 pendiente | — |
+
+---
+
+### Nomenclatura final (actualizada)
+
+| Paso | Archivo | Función |
+|---|---|---|
+| H1 | `sensibilizador-propiedades.html` | Comparar propiedades, VOB, gap bruto, costos modal, gap neto |
+| costos | `costos-modal.js` | Modal embebido en H1 para cargar costos de proyecto |
+| H3 | `balance-final.html` | Patrón de salida, inputs de tiempo, export a calculadora |
+| Motor | `../gastro/engine.js` | Motor financiero compartido (gastro + inmobiliario) |
+| Calculadora | `calculadora-inversion-inmob.html` | UI societaria + motor + outputs TIR/VAN/ROI |
+
+**Nota:** `calculadora-costos.html` standalone queda como herramienta auxiliar pero el flujo principal ya no pasa por ella. El modal es la vía recomendada.
+
+---
+
+### Necesito de otros agentes
+
+- **Agent-Modelo:** confirmar que `engine.js` en `gastro/` es la referencia a importar con `../gastro/engine.js` desde `/inmobiliario/`. Si la ruta genera problemas en GitHub Pages, evaluar copiar el engine a `/inmobiliario/engine.js`.
+
+---
+
+### Próximo paso
+
+Construir `inmobiliario/calculadora-inversion-inmob.html`:
+1. Shell HTML + `<script src="../gastro/engine.js">` + `<script src="./sfi-state.js">`
+2. Sidebar: selector patrón → inputs inmob (prellenados desde H3) → tiers → parámetros societarios
+3. Resultados: KPIs TIR/VAN/ROI/Payback + gráfico + tabla mensual
+4. Banner H3 si hay datos guardados
