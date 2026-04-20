@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balance Final — SFI Inmobiliario</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-soft: #f1f5f9;
+      --border-default: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+      --primary: #1e40af;
+      --primary-hover: #1e3a8a;
+      --success: #047857;
+      --success-soft: #ecfdf5;
+      --warning: #d97706;
+      --warning-soft: #fffbeb;
+      --error: #dc2626;
+      --error-soft: #fef2f2;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 12px;
+      --space-lg: 16px;
+      --space-xl: 24px;
+      --space-2xl: 32px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 96px;
+    }
+
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-default);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-xl);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: var(--space-xl);
+      align-items: start;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .card-body { padding: var(--space-xl); }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: -6px;
+      margin-bottom: var(--space-lg);
+    }
+
+    .input-group { margin-bottom: var(--space-md); }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      height: 40px;
+      padding: 0 var(--space-md);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text-primary);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); }
+
+    .btn {
+      height: 40px;
+      padding: 0 var(--space-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      text-decoration: none;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: white; color: var(--text-primary); border: 1px solid var(--border-default); }
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { opacity: 0.95; }
+
+    .info-strip {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .info-strip strong { color: var(--primary); }
+    .info-strip p { font-size: 12px; color: var(--text-secondary); }
+
+    .property-summary {
+      display: grid;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .summary-item {
+      background: var(--bg-soft);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+    }
+
+    .summary-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-lg);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill.success { background: #d1fae5; color: #065f46; }
+    .pill.warning { background: #fef3c7; color: #92400e; }
+    .pill.error { background: #fee2e2; color: #991b1b; }
+    .pill.neutral { background: #f3f4f6; color: #374151; }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .metric {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    .metric-sub {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric.success .metric-value { color: var(--success); }
+    .metric.warning .metric-value { color: var(--warning); }
+    .metric.error .metric-value { color: var(--error); }
+    .metric.primary .metric-value { color: var(--primary); }
+
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-soft);
+      border-bottom: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    .mono { font-variant-numeric: tabular-nums; }
+    .text-success { color: var(--success); font-weight: 700; }
+    .text-warning { color: var(--warning); font-weight: 700; }
+    .text-error { color: var(--error); font-weight: 700; }
+    .text-primary-strong { color: var(--primary); font-weight: 700; }
+
+    .sticky-bottom {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to top, #ffffff 0%, #f8fafc 100%);
+      border-top: 1px solid var(--border-default);
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+      padding: var(--space-md) var(--space-xl);
+      z-index: 100;
+    }
+
+    .sticky-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .sticky-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-lg);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      body { padding-bottom: 144px; }
+      .container { padding: var(--space-md); }
+      .header { padding: var(--space-lg); }
+      .grid-2, .grid-3, .output-grid { grid-template-columns: 1fr; }
+      .sticky-content { flex-direction: column; align-items: flex-start; }
+      .header-actions { width: 100%; }
+      .header-actions .btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>📈 Balance Final Inmobiliario</h1>
+      <div class="header-subtitle">H3 — preparación de outputs para la calculadora de inversión</div>
+    </div>
+    <div class="header-actions">
+      <a class="btn btn-secondary" href="./sensibilizador-propiedades.html">← Volver al sensibilizador</a>
+      <button class="btn btn-primary" onclick="guardarYContinuar()">💾 Guardar outputs</button>
+    </div>
+  </header>
+
+  <div class="container" id="app"></div>
+
+  <div class="sticky-bottom">
+    <div class="sticky-content">
+      <div class="sticky-meta">
+        <span id="stickyProp">Sin propiedad seleccionada</span>
+        <span id="stickyPatron">Patrón: —</span>
+        <span id="stickyExport">Export: incompleto</span>
+      </div>
+      <div>
+        <button class="btn btn-success" onclick="guardarYContinuar()">🚀 Guardar para calculadora de inversión</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./sfi-state.js"></script>
+  <script>
+    function cleanNumber(v) {
+      return parseFloat(String(v ?? '').replace(/[^0-9.-]/g, '')) || 0;
+    }
+
+    function formatUF(v, d = 2) {
+      if (v === null || v === undefined || Number.isNaN(v)) return '—';
+      return new Intl.NumberFormat('es-CL', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v) + ' UF';
+    }
+
+    function formatCLP(v) {
+      if (v === null || v === undefined || Number.isNaN(v)) return '—';
+      return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(v);
+    }
+
+    function formatPct(v, d = 1) {
+      if (v === null || v === undefined || Number.isNaN(v)) return '—';
+      return (v * 100).toFixed(d) + '%';
+    }
+
+    function getValorUF() {
+      return SFI.loadValorUF() || 38500;
+    }
+
+    function getOportunidades() {
+      return SFI.loadOportunidades().filter(p => p.tipo === 'oportunidad');
+    }
+
+    function getSavedH3() {
+      return SFI.loadH3Params() || {};
+    }
+
+    function getSelectedPropiedad() {
+      const id = cleanNumber(document.getElementById('propiedadId')?.value);
+      return getOportunidades().find(p => p.id === id) || null;
+    }
+
+    function getPatron() {
+      return document.getElementById('patronSalida')?.value || 'hibrido';
+    }
+
+    function getInputs() {
+      return {
+        propiedadId: cleanNumber(document.getElementById('propiedadId')?.value),
+        patronSalida: getPatron(),
+        ajusteAnualPct: cleanNumber(document.getElementById('ajusteAnualPct')?.value) / 100,
+        plazoAnios: cleanNumber(document.getElementById('plazoAnios')?.value),
+        mesVenta: cleanNumber(document.getElementById('mesVenta')?.value),
+        costoVentaPct: cleanNumber(document.getElementById('costoVentaPct')?.value) / 100,
+        costoVentaFijoCLP: cleanNumber(document.getElementById('costoVentaFijoCLP')?.value)
+      };
+    }
+
+    function computeExport() {
+      const prop = getSelectedPropiedad();
+      if (!prop) return null;
+
+      const valorUF = getValorUF();
+      const i = getInputs();
+      const costosTotalesUF = prop.costos?.costoTotalUF || 0;
+      const precioCompraUF = prop.precioUF || 0;
+      const precioVentaUF = prop.vobUF || 0;
+      const arriendoBaseUF = prop.arriendoEstimadoUF || 0;
+      const inversionBaseUF = precioCompraUF + costosTotalesUF;
+      const gapBrutoUF = prop.gapBrutoUF ?? (precioVentaUF - precioCompraUF);
+      const gapNetoUF = prop.gapNetoUF ?? (gapBrutoUF - costosTotalesUF);
+      const costoVentaUF = valorUF > 0 ? (i.costoVentaFijoCLP / valorUF) : 0;
+      const ventaNetaUF = precioVentaUF - (precioVentaUF * i.costoVentaPct) - costoVentaUF;
+      const utilidadVentaUF = ventaNetaUF - inversionBaseUF;
+      const roiVenta = inversionBaseUF > 0 ? utilidadVentaUF / inversionBaseUF : 0;
+      const arriendoAnualUF = arriendoBaseUF * 12;
+      const yieldBruto = precioCompraUF > 0 ? arriendoAnualUF / precioCompraUF : 0;
+      const yieldSobreInversion = inversionBaseUF > 0 ? arriendoAnualUF / inversionBaseUF : 0;
+      const paybackAnios = arriendoAnualUF > 0 ? inversionBaseUF / arriendoAnualUF : null;
+
+      return {
+        propiedadId: prop.id,
+        patronSalida: i.patronSalida,
+        precioCompraUF,
+        costosTotalesUF,
+        gapNetoUF,
+        arriendoBaseUF,
+        precioVentaUF,
+        valorUF,
+        ajusteAnualPct: i.ajusteAnualPct,
+        plazoAnios: i.plazoAnios,
+        mesVenta: i.mesVenta,
+        costoVentaPct: i.costoVentaPct,
+        costoVentaFijoCLP: i.costoVentaFijoCLP,
+        inversionBaseUF,
+        gapBrutoUF,
+        ventaNetaUF,
+        utilidadVentaUF,
+        roiVenta,
+        arriendoAnualUF,
+        yieldBruto,
+        yieldSobreInversion,
+        paybackAnios
+      };
+    }
+
+    function getSemaforo(data) {
+      if (!data) return { cls: 'neutral', text: 'Sin datos' };
+      if (data.gapNetoUF > 0 && data.roiVenta > 0.12) return { cls: 'success', text: 'Semáforo verde' };
+      if (data.gapNetoUF > 0 || data.roiVenta > 0) return { cls: 'warning', text: 'Semáforo amarillo' };
+      return { cls: 'error', text: 'Semáforo rojo' };
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+      const oportunidades = getOportunidades();
+      const saved = getSavedH3();
+      const valorUF = getValorUF();
+
+      if (oportunidades.length === 0) {
+        app.innerHTML = `
+          <div class="card">
+            <div class="empty-state">
+              <h2 style="margin-bottom:12px; color: var(--text-primary);">No hay oportunidades disponibles</h2>
+              <p style="margin-bottom:16px;">Primero crea al menos una propiedad tipo oportunidad en el sensibilizador.</p>
+              <a class="btn btn-primary" href="./sensibilizador-propiedades.html">Ir al sensibilizador</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const selectedId = saved.propiedadId && oportunidades.some(p => p.id === saved.propiedadId)
+        ? saved.propiedadId
+        : oportunidades[0].id;
+
+      app.innerHTML = `
+        <div class="layout">
+          <aside class="card">
+            <div class="card-body">
+              <div class="section-title">Inputs H3</div>
+              <div class="info-strip">
+                <p><strong>Objetivo:</strong> definir el patrón de salida y capturar los parámetros que la calculadora de inversión inmobiliaria necesita como inputs del motor.</p>
+              </div>
+
+              <div class="input-group">
+                <label>Propiedad objetivo</label>
+                <select id="propiedadId" onchange="renderOutputs()">
+                  ${oportunidades.map(p => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.nombre || ('Propiedad #' + p.id)}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label>Patrón de salida</label>
+                <select id="patronSalida" onchange="togglePatronFields(); renderOutputs();">
+                  <option value="arriendo-mensual" ${(saved.patronSalida || 'hibrido') === 'arriendo-mensual' ? 'selected' : ''}>Arriendo mensual</option>
+                  <option value="venta-activo" ${(saved.patronSalida || 'hibrido') === 'venta-activo' ? 'selected' : ''}>Venta de activo</option>
+                  <option value="hibrido" ${(saved.patronSalida || 'hibrido') === 'hibrido' ? 'selected' : ''}>Híbrido</option>
+                </select>
+              </div>
+
+              <div id="blockArriendo">
+                <div class="grid-2">
+                  <div class="input-group">
+                    <label>Ajuste anual arriendo (%)</label>
+                    <input id="ajusteAnualPct" type="number" min="0" step="0.1" value="${saved.ajusteAnualPct !== undefined ? saved.ajusteAnualPct * 100 : 3}" oninput="renderOutputs()">
+                  </div>
+                  <div class="input-group">
+                    <label>Plazo arriendo (años)</label>
+                    <input id="plazoAnios" type="number" min="1" max="30" step="1" value="${saved.plazoAnios || 10}" oninput="renderOutputs()">
+                  </div>
+                </div>
+              </div>
+
+              <div id="blockVenta">
+                <div class="grid-3">
+                  <div class="input-group">
+                    <label>Mes de venta</label>
+                    <input id="mesVenta" type="number" min="1" max="360" step="1" value="${saved.mesVenta || 24}" oninput="renderOutputs()">
+                  </div>
+                  <div class="input-group">
+                    <label>Costo venta (%)</label>
+                    <input id="costoVentaPct" type="number" min="0" step="0.1" value="${saved.costoVentaPct !== undefined ? saved.costoVentaPct * 100 : 2}" oninput="renderOutputs()">
+                  </div>
+                  <div class="input-group">
+                    <label>Costo venta fijo (CLP)</label>
+                    <input id="costoVentaFijoCLP" type="number" min="0" step="10000" value="${saved.costoVentaFijoCLP || 400000}" oninput="renderOutputs()">
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-title" style="margin-top: 12px;">Valor UF</div>
+              <div class="summary-item">
+                <div class="summary-label">UF actual</div>
+                <div class="summary-value">${formatCLP(valorUF)}</div>
+                <div class="summary-sub">1 UF = ${formatCLP(valorUF)}</div>
+              </div>
+            </div>
+          </aside>
+
+          <main id="outputsPanel"></main>
+        </div>
+      `;
+
+      togglePatronFields();
+      renderOutputs();
+    }
+
+    function togglePatronFields() {
+      const patron = getPatron();
+      const blockArriendo = document.getElementById('blockArriendo');
+      const blockVenta = document.getElementById('blockVenta');
+      if (!blockArriendo || !blockVenta) return;
+      blockArriendo.classList.toggle('hidden', patron === 'venta-activo');
+      blockVenta.classList.toggle('hidden', patron === 'arriendo-mensual');
+    }
+
+    function renderOutputs() {
+      const panel = document.getElementById('outputsPanel');
+      if (!panel) return;
+      const prop = getSelectedPropiedad();
+      const data = computeExport();
+      if (!prop || !data) {
+        panel.innerHTML = '<div class="card"><div class="empty-state">Selecciona una propiedad válida.</div></div>';
+        return;
+      }
+
+      const valorUF = data.valorUF;
+      const semaforo = getSemaforo(data);
+      const patronText = data.patronSalida === 'arriendo-mensual' ? 'Arriendo mensual' : data.patronSalida === 'venta-activo' ? 'Venta activo' : 'Híbrido';
+
+      panel.innerHTML = `
+        <div class="property-summary">
+          <div class="card">
+            <div class="card-body">
+              <div class="section-title">Propiedad seleccionada</div>
+              <div class="pill-row">
+                <span class="pill ${semaforo.cls}">${semaforo.text}</span>
+                <span class="pill neutral">${patronText}</span>
+                ${prop.costos ? '<span class="pill success">Costos cargados</span>' : '<span class="pill warning">Sin costos completos</span>'}
+              </div>
+
+              <div class="grid-2">
+                <div class="summary-item">
+                  <div class="summary-label">Propiedad</div>
+                  <div class="summary-value" style="font-size:16px;">${prop.nombre || ('Propiedad #' + prop.id)}</div>
+                  <div class="summary-sub">${prop.estado || '—'} · ${prop.m2Construido || 0} m² construidos</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Arriendo estimado</div>
+                  <div class="summary-value">${prop.arriendoEstimadoUF ? formatUF(prop.arriendoEstimadoUF) : '—'}</div>
+                  <div class="summary-sub">${prop.arriendoEstimadoUF ? formatCLP(prop.arriendoEstimadoUF * valorUF) + ' / mes' : 'No informado en H1'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-grid">
+          <div class="metric primary">
+            <div class="metric-label">Compra</div>
+            <div class="metric-value">${formatUF(data.precioCompraUF)}</div>
+            <div class="metric-sub">${formatCLP(data.precioCompraUF * valorUF)}</div>
+          </div>
+          <div class="metric ${data.costosTotalesUF > 0 ? 'warning' : ''}">
+            <div class="metric-label">Costos totales</div>
+            <div class="metric-value">${formatUF(data.costosTotalesUF)}</div>
+            <div class="metric-sub">${formatCLP(data.costosTotalesUF * valorUF)}</div>
+          </div>
+          <div class="metric primary">
+            <div class="metric-label">Venta objetivo (VOB)</div>
+            <div class="metric-value">${formatUF(data.precioVentaUF)}</div>
+            <div class="metric-sub">${formatCLP(data.precioVentaUF * valorUF)}</div>
+          </div>
+          <div class="metric ${data.gapNetoUF >= 0 ? 'success' : 'error'}">
+            <div class="metric-label">Gap neto</div>
+            <div class="metric-value">${formatUF(data.gapNetoUF)}</div>
+            <div class="metric-sub">${formatCLP(data.gapNetoUF * valorUF)}</div>
+          </div>
+        </div>
+
+        <div class="output-grid">
+          <div class="metric">
+            <div class="metric-label">Inversión base</div>
+            <div class="metric-value">${formatUF(data.inversionBaseUF)}</div>
+            <div class="metric-sub">Compra + costos</div>
+          </div>
+          <div class="metric ${data.ventaNetaUF >= data.inversionBaseUF ? 'success' : 'error'}">
+            <div class="metric-label">Venta neta estimada</div>
+            <div class="metric-value">${formatUF(data.ventaNetaUF)}</div>
+            <div class="metric-sub">Descontando costos de venta</div>
+          </div>
+          <div class="metric ${data.utilidadVentaUF >= 0 ? 'success' : 'error'}">
+            <div class="metric-label">Utilidad venta</div>
+            <div class="metric-value">${formatUF(data.utilidadVentaUF)}</div>
+            <div class="metric-sub">${formatCLP(data.utilidadVentaUF * valorUF)}</div>
+          </div>
+          <div class="metric ${data.roiVenta >= 0.12 ? 'success' : data.roiVenta >= 0 ? 'warning' : 'error'}">
+            <div class="metric-label">ROI venta</div>
+            <div class="metric-value">${formatPct(data.roiVenta)}</div>
+            <div class="metric-sub">Sobre inversión base</div>
+          </div>
+        </div>
+
+        <div class="output-grid">
+          <div class="metric ${data.arriendoBaseUF > 0 ? 'primary' : ''}">
+            <div class="metric-label">Arriendo mensual base</div>
+            <div class="metric-value">${data.arriendoBaseUF > 0 ? formatUF(data.arriendoBaseUF) : '—'}</div>
+            <div class="metric-sub">${data.arriendoBaseUF > 0 ? formatCLP(data.arriendoBaseUF * valorUF) + ' / mes' : 'Pendiente en H1'}</div>
+          </div>
+          <div class="metric ${data.yieldBruto > 0.05 ? 'success' : data.yieldBruto > 0 ? 'warning' : ''}">
+            <div class="metric-label">Yield bruto compra</div>
+            <div class="metric-value">${data.arriendoBaseUF > 0 ? formatPct(data.yieldBruto) : '—'}</div>
+            <div class="metric-sub">Arriendo anual / compra</div>
+          </div>
+          <div class="metric ${data.yieldSobreInversion > 0.05 ? 'success' : data.yieldSobreInversion > 0 ? 'warning' : ''}">
+            <div class="metric-label">Yield sobre inversión</div>
+            <div class="metric-value">${data.arriendoBaseUF > 0 ? formatPct(data.yieldSobreInversion) : '—'}</div>
+            <div class="metric-sub">Arriendo anual / compra+costos</div>
+          </div>
+          <div class="metric ${data.paybackAnios && data.paybackAnios <= 18 ? 'success' : data.paybackAnios ? 'warning' : ''}">
+            <div class="metric-label">Payback simple</div>
+            <div class="metric-value">${data.paybackAnios ? data.paybackAnios.toFixed(1) + ' años' : '—'}</div>
+            <div class="metric-sub">Sin reajustes ni deuda</div>
+          </div>
+        </div>
+
+        <div class="table-card" style="margin-bottom: 16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Campo exportado</th>
+                <th>Valor</th>
+                <th>Origen</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>propiedadId</code></td>
+                <td>${data.propiedadId}</td>
+                <td>H1/H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>patronSalida</code></td>
+                <td>${data.patronSalida}</td>
+                <td>H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>precioCompraUF</code></td>
+                <td>${formatUF(data.precioCompraUF)}</td>
+                <td>H1</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>costosTotalesUF</code></td>
+                <td>${formatUF(data.costosTotalesUF)}</td>
+                <td>H2 modal</td>
+                <td class="${prop.costos ? 'text-success' : 'text-warning'}">${prop.costos ? 'OK' : 'Falta validar costos'}</td>
+              </tr>
+              <tr>
+                <td><code>gapNetoUF</code></td>
+                <td>${formatUF(data.gapNetoUF)}</td>
+                <td>H1 + H2</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>arriendoBaseUF</code></td>
+                <td>${data.arriendoBaseUF > 0 ? formatUF(data.arriendoBaseUF) : '—'}</td>
+                <td>H1</td>
+                <td class="${data.arriendoBaseUF > 0 ? 'text-success' : 'text-warning'}">${data.arriendoBaseUF > 0 ? 'OK' : 'Falta input'}</td>
+              </tr>
+              <tr>
+                <td><code>precioVentaUF</code></td>
+                <td>${formatUF(data.precioVentaUF)}</td>
+                <td>H1 (VOB)</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>valorUF</code></td>
+                <td>${formatCLP(data.valorUF)}</td>
+                <td>H1 global</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>ajusteAnualPct</code></td>
+                <td>${formatPct(data.ajusteAnualPct)}</td>
+                <td>H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>plazoAnios</code></td>
+                <td>${data.plazoAnios} años</td>
+                <td>H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>mesVenta</code></td>
+                <td>${data.mesVenta}</td>
+                <td>H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>costoVentaPct</code></td>
+                <td>${formatPct(data.costoVentaPct)}</td>
+                <td>H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td><code>costoVentaFijoCLP</code></td>
+                <td>${formatCLP(data.costoVentaFijoCLP)}</td>
+                <td>H3</td>
+                <td class="text-success">OK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Dato que la calculadora de inversión sigue pidiendo en su propia UI</th>
+                <th>Razón</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>pctSocMicroinv</code>, <code>pctEnSociedad</code>, <code>impuesto1Cat</code>, <code>retencion</code></td>
+                <td>Inputs societarios/tributarios del motor; no pertenecen al flujo inmobiliario H1-H3.</td>
+              </tr>
+              <tr>
+                <td>Tiers de inversión, mes inversión, mes inicio retornos, tipo holder</td>
+                <td>Siguen siendo inputs de la estructura societaria, no del análisis del activo.</td>
+              </tr>
+              <tr>
+                <td><code>tasaDescuento</code></td>
+                <td>Necesaria para VAN, pero es una decisión del usuario/inversor, no de la propiedad.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('stickyProp').textContent = prop.nombre || ('Propiedad #' + prop.id);
+      document.getElementById('stickyPatron').textContent = 'Patrón: ' + patronText;
+      document.getElementById('stickyExport').textContent = 'Export: ' + (isExportReady(data) ? 'listo' : 'incompleto');
+    }
+
+    function isExportReady(data) {
+      if (!data) return false;
+      if (!data.propiedadId || !data.precioCompraUF || !data.precioVentaUF || !data.valorUF) return false;
+      if ((data.patronSalida === 'arriendo-mensual' || data.patronSalida === 'hibrido') && !data.arriendoBaseUF) return false;
+      if ((data.patronSalida === 'venta-activo' || data.patronSalida === 'hibrido') && !data.mesVenta) return false;
+      return true;
+    }
+
+    function guardarYContinuar() {
+      const data = computeExport();
+      if (!isExportReady(data)) {
+        alert('Faltan inputs para cerrar el export de H3. Revisa arriendo base, mes de venta y propiedad seleccionada.');
+        return;
+      }
+      SFI.saveH3Params(data);
+      alert('✅ Outputs H3 guardados en sfi-state. Ya puedes usarlos para prellenar la calculadora de inversión inmobiliaria.');
+    }
+
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>
