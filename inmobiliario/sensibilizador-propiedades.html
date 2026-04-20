@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sensibilizador de Propiedades — SFI</title>
   <style>
-    /* ==================== VARIABLES CSS ==================== */
     :root {
       --bg-primary: #FAFBFC;
       --bg-card: #FFFFFF;
@@ -13,7 +12,6 @@
       --text-primary: #111827;
       --text-secondary: #6B7280;
       --text-tertiary: #9CA3AF;
-
       --primary: #1E40AF;
       --primary-hover: #1E3A8A;
       --success: #047857;
@@ -22,23 +20,19 @@
       --error: #DC2626;
       --gap-positive: #047857;
       --gap-zero: #6B7280;
-
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 2px 4px rgba(0,0,0,0.06);
       --shadow-lg: 0 4px 8px rgba(0,0,0,0.08);
-
       --space-xs: 4px;
       --space-sm: 8px;
       --space-md: 12px;
       --space-lg: 16px;
       --space-xl: 20px;
-
       --radius-sm: 4px;
       --radius-md: 6px;
       --radius-lg: 8px;
     }
 
-    /* ==================== RESET Y BASE ==================== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -48,9 +42,9 @@
       font-size: 14px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      padding-bottom: 100px;
     }
 
-    /* ==================== HEADER ==================== */
     .header {
       background: var(--bg-card);
       border-bottom: 1px solid var(--border-default);
@@ -77,14 +71,12 @@
       flex-wrap: wrap;
     }
 
-    /* ==================== CONTAINER ==================== */
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: var(--space-xl);
     }
 
-    /* ==================== SECTION ==================== */
     .section {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -103,12 +95,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
     }
 
-    /* ==================== INPUTS ==================== */
-    .input-group {
-      margin-bottom: var(--space-md);
-    }
+    .input-group { margin-bottom: var(--space-md); }
 
     .input-group label {
       display: block;
@@ -143,7 +134,6 @@
     .input-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); }
     .input-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: var(--space-md); }
 
-    /* ==================== INFO BOX ==================== */
     .info-box {
       background: #EFF6FF;
       border: 1px solid #DBEAFE;
@@ -164,7 +154,6 @@
       color: var(--text-secondary);
     }
 
-    /* ==================== BUTTONS ==================== */
     .btn {
       height: 36px;
       padding: 0 var(--space-lg);
@@ -211,7 +200,6 @@
     }
     .btn-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(30,64,175,0.04); }
 
-    /* ==================== TASA UF ==================== */
     .tasa-bar {
       background: var(--bg-card);
       border-bottom: 1px solid var(--border-default);
@@ -220,6 +208,7 @@
       align-items: center;
       gap: var(--space-lg);
       font-size: 13px;
+      flex-wrap: wrap;
     }
 
     .tasa-bar label {
@@ -249,7 +238,6 @@
       font-size: 12px;
     }
 
-    /* ==================== PROPIEDAD CARD ==================== */
     .propiedad-card {
       border: 1px solid var(--border-default);
       border-radius: var(--radius-lg);
@@ -258,17 +246,9 @@
       transition: box-shadow 0.15s;
     }
 
-    .propiedad-card:hover {
-      box-shadow: var(--shadow-lg);
-    }
-
-    .propiedad-card.tipo-oportunidad {
-      border-left: 4px solid var(--primary);
-    }
-
-    .propiedad-card.tipo-comparable {
-      border-left: 4px solid var(--border-default);
-    }
+    .propiedad-card:hover { box-shadow: var(--shadow-lg); }
+    .propiedad-card.tipo-oportunidad { border-left: 4px solid var(--primary); }
+    .propiedad-card.tipo-comparable { border-left: 4px solid var(--border-default); }
 
     .card-header {
       background: #F9FAFB;
@@ -285,6 +265,7 @@
       display: flex;
       align-items: center;
       gap: var(--space-md);
+      flex-wrap: wrap;
     }
 
     .card-num {
@@ -306,6 +287,8 @@
 
     .tag-oportunidad { background: #DBEAFE; color: var(--primary); }
     .tag-comparable { background: #F3F4F6; color: var(--text-secondary); }
+    .tag-costos { background: #D1FAE5; color: #065F46; }
+    .tag-sin-costos { background: #FEF3C7; color: #92400E; }
 
     .card-nombre {
       font-size: 14px;
@@ -313,11 +296,8 @@
       color: var(--text-primary);
     }
 
-    .card-body {
-      padding: var(--space-lg);
-    }
+    .card-body { padding: var(--space-lg); }
 
-    /* ==================== SECCIÓN VOB ==================== */
     .vob-section {
       margin-top: var(--space-lg);
       padding-top: var(--space-lg);
@@ -333,7 +313,6 @@
       margin-bottom: var(--space-md);
     }
 
-    /* ==================== CAMPO CALCULADO ==================== */
     .campo-calculado {
       background: #F9FAFB;
       border: 1px solid var(--border-default);
@@ -354,7 +333,18 @@
       color: var(--primary);
     }
 
-    /* ==================== GAP BADGE ==================== */
+    .campo-calculado.success {
+      background: #ECFDF5;
+      border-color: #A7F3D0;
+      color: var(--success);
+    }
+
+    .campo-calculado.error {
+      background: #FEF2F2;
+      border-color: #FECACA;
+      color: var(--error);
+    }
+
     .gap-badge {
       display: inline-flex;
       align-items: center;
@@ -370,7 +360,25 @@
     .gap-badge.negativo { background: #FEE2E2; color: var(--error); }
     .gap-badge.neutro { background: #F3F4F6; color: var(--gap-zero); }
 
-    /* ==================== TABLA COMPARATIVA ==================== */
+    .card-actions {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px dashed var(--border-default);
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-actions-left,
+    .card-actions-right {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     .tabla-wrapper {
       overflow-x: auto;
       border-radius: var(--radius-lg);
@@ -400,7 +408,6 @@
     }
 
     .tabla-comparativa th:hover { background: #E2E8F0; color: var(--primary); }
-
     .tabla-comparativa th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 10px; }
     .tabla-comparativa th.sort-asc .sort-icon,
     .tabla-comparativa th.sort-desc .sort-icon { opacity: 1; color: var(--primary); }
@@ -438,7 +445,6 @@
     .resumen-value.accent { color: var(--primary); }
     .resumen-value.success { color: var(--success); }
 
-    /* ==================== ESTADO BADGES ==================== */
     .estado-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; }
     .estado-bien { background: #D1FAE5; color: #065F46; }
     .estado-antiguo-bien { background: #FEF3C7; color: #92400E; }
@@ -448,26 +454,55 @@
     .link-portal { font-size: 12px; color: var(--primary); text-decoration: none; }
     .link-portal:hover { text-decoration: underline; }
 
-    /* ==================== UTILITIES ==================== */
+    .sticky-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, #ffffff 0%, #f8f9fa 100%);
+      border-top: 1px solid var(--border-default);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      padding: var(--space-md) var(--space-xl);
+      z-index: 100;
+    }
+
+    .sticky-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .sticky-meta {
+      display: flex;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
     .hidden { display: none !important; }
     .text-muted { color: var(--text-secondary); }
 
-    /* ==================== RESPONSIVE ==================== */
     @media (max-width: 1024px) {
       .container { padding: var(--space-md); }
       .input-grid-4 { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 640px) {
+      body { padding-bottom: 160px; }
       .header { flex-direction: column; align-items: flex-start; }
       .input-grid-2, .input-grid-3, .input-grid-4 { grid-template-columns: 1fr; }
-      .card-header { flex-direction: column; align-items: flex-start; }
+      .card-header, .card-actions, .sticky-content { flex-direction: column; align-items: flex-start; }
+      .tasa-bar { align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ==================== HEADER ==================== -->
   <header class="header">
     <h1>🏠 Sensibilizador de Propiedades</h1>
     <div class="header-actions">
@@ -476,17 +511,13 @@
     </div>
   </header>
 
-  <!-- ==================== TASA UF ==================== -->
   <div class="tasa-bar">
     <label>Valor UF:</label>
     <input type="number" id="valorUF" min="1000" step="1" value="38500" oninput="recalcularTodo()">
     <span class="tasa-display" id="tasaDisplay">1 UF = $38.500</span>
   </div>
 
-  <!-- ==================== CONTAINER ==================== -->
   <div class="container">
-
-    <!-- ==================== INGRESO PROPIEDADES ==================== -->
     <section class="section">
       <h2 class="section-title">
         <span>Propiedades</span>
@@ -496,16 +527,14 @@
       <div class="info-box">
         <div class="info-box-title">Cómo usar</div>
         <div class="info-box-text">
-          Ingresa primero la <strong>Tasa UF</strong> arriba. Luego agrega cada propiedad: marca como <strong>Oportunidad</strong> las que evalúas comprar y como <strong>Comparable</strong> las que anclan el valor de mercado del barrio. El <strong>Gap Bruto</strong> = VOB − Precio de compra (antes de descontar obras).
+          Ingresa primero la <strong>Tasa UF</strong>. Luego agrega cada propiedad: marca como <strong>Oportunidad</strong> las que evalúas comprar y como <strong>Comparable</strong> las que anclan el valor de mercado del barrio. Ahora cada oportunidad puede guardar su propio costo de proyecto y su <strong>arriendo estimado mensual</strong>.
         </div>
       </div>
 
       <div id="propiedadesContainer"></div>
-
       <button class="btn-add" onclick="agregarPropiedad()">+ Agregar otra propiedad</button>
     </section>
 
-    <!-- ==================== TABLA COMPARATIVA ==================== -->
     <section class="section" id="seccionTabla">
       <h2 class="section-title">
         <span>Tabla Comparativa</span>
@@ -525,28 +554,39 @@
               <th onclick="ordenarPor('estado')" data-col="estado">Estado <span class="sort-icon">↕</span></th>
               <th>Dormit. / Baños</th>
               <th>M² Ext.</th>
+              <th onclick="ordenarPor('arriendoEstimadoUF')" data-col="arriendoEstimadoUF">Arriendo <span class="sort-icon">↕</span></th>
               <th onclick="ordenarPor('vobUF')" data-col="vobUF">VOB (UF) <span class="sort-icon">↕</span></th>
               <th onclick="ordenarPor('vobUfM2')" data-col="vobUfM2">UF/m² VOB <span class="sort-icon">↕</span></th>
               <th onclick="ordenarPor('gapBruto')" data-col="gapBruto">Gap Bruto <span class="sort-icon">↕</span></th>
+              <th onclick="ordenarPor('gapNetoUF')" data-col="gapNetoUF">Gap Neto <span class="sort-icon">↕</span></th>
               <th>Portal</th>
             </tr>
           </thead>
           <tbody id="tablaBody">
-            <tr>
-              <td colspan="13" class="tabla-empty">Agrega propiedades para ver la comparación</td>
-            </tr>
+            <tr><td colspan="15" class="tabla-empty">Agrega propiedades para ver la comparación</td></tr>
           </tbody>
         </table>
         <div class="resumen-bar" id="resumenBar" style="display:none;"></div>
       </div>
     </section>
-
   </div>
 
-  <!-- ==================== JAVASCRIPT ==================== -->
+  <div class="sticky-bottom">
+    <div class="sticky-content">
+      <div class="sticky-meta">
+        <span id="stickyCount">0 propiedades</span>
+        <span id="stickyOport">0 oportunidades</span>
+        <span id="stickyConCostos">0 con costos cargados</span>
+      </div>
+      <div>
+        <button class="btn btn-success" onclick="continuarABalance()">📈 Continuar a Balance →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./sfi-state.js"></script>
+  <script src="./costos-modal.js"></script>
   <script>
-    // ==================== ESTADO ====================
-    let propiedades = [];
     let propiedadCounter = 0;
     let sortCol = null;
     let sortDir = 'asc';
@@ -558,9 +598,8 @@
       'Antiguo': 'estado-antiguo'
     };
 
-    // ==================== UTILIDADES ====================
     function cleanNumber(val) {
-      return parseFloat(String(val).replace(/[^0-9.-]/g, '')) || 0;
+      return parseFloat(String(val ?? '').replace(/[^0-9.-]/g, '')) || 0;
     }
 
     function formatUFraw(val, dec = 2) {
@@ -584,52 +623,88 @@
       return cleanNumber(document.getElementById('valorUF').value) || 38500;
     }
 
-    // ==================== AGREGAR PROPIEDAD ====================
-    function agregarPropiedad() {
-      propiedadCounter++;
-      const id = propiedadCounter;
-      propiedades.push({ id });
+    function getPropCardData(id) {
+      const tipo = document.getElementById(`tipo-${id}`)?.value || 'oportunidad';
+      const nombre = document.getElementById(`nombre-${id}`)?.value || `Propiedad #${id}`;
+      const estado = document.getElementById(`estado-${id}`)?.value || 'Antiguo Mal';
+      const precioUF = cleanNumber(document.getElementById(`precioUF-${id}`)?.value);
+      const m2Construido = cleanNumber(document.getElementById(`m2Construido-${id}`)?.value);
+      const m2Terreno = cleanNumber(document.getElementById(`m2Terreno-${id}`)?.value);
+      const dormitorios = cleanNumber(document.getElementById(`dormitorios-${id}`)?.value);
+      const banos = cleanNumber(document.getElementById(`banos-${id}`)?.value);
+      const m2Exterior = cleanNumber(document.getElementById(`m2Exterior-${id}`)?.value);
+      const link = document.getElementById(`link-${id}`)?.value || '';
+      const arriendoEstimadoUF = cleanNumber(document.getElementById(`arriendoEstimadoUF-${id}`)?.value);
+      const vobUF = tipo === 'oportunidad' ? cleanNumber(document.getElementById(`vobUF-${id}`)?.value) : 0;
+      const vobM2 = tipo === 'oportunidad' ? cleanNumber(document.getElementById(`vobM2-${id}`)?.value) : 0;
+      const ufM2 = m2Construido > 0 ? precioUF / m2Construido : 0;
+      const vobUfM2 = tipo === 'oportunidad' && vobM2 > 0 ? vobUF / vobM2 : 0;
+      const gapBrutoUF = tipo === 'oportunidad' && vobUF > 0 && precioUF > 0 ? vobUF - precioUF : null;
+      const stored = SFI.getPropiedad(id);
+      const gapNetoUF = stored?.gapNetoUF ?? null;
+      return {
+        id, nombre, tipo, estado,
+        precioUF, vobUF, vobM2,
+        m2Construido, m2Terreno, m2Exterior,
+        dormitorios, banos, link, arriendoEstimadoUF,
+        ufM2, vobUfM2, gapBrutoUF, gapNetoUF,
+        costos: stored?.costos ?? null
+      };
+    }
+
+    function persistPropiedad(id) {
+      const valorUF = getValorUF();
+      SFI.saveValorUF(valorUF);
+      const data = getPropCardData(id);
+      SFI.savePropiedad(data);
+      return data;
+    }
+
+    function agregarPropiedad(data = null) {
+      const id = data?.id || ++propiedadCounter;
+      if (id > propiedadCounter) propiedadCounter = id;
 
       const container = document.getElementById('propiedadesContainer');
       const card = document.createElement('div');
       card.className = 'propiedad-card tipo-oportunidad';
       card.id = `card-${id}`;
-      card.innerHTML = buildCardHTML(id);
+      card.innerHTML = buildCardHTML(id, data);
       container.appendChild(card);
 
-      actualizarTipoCard(id);
-      recalcularCard(id);
+      actualizarTipoCard(id, false);
+      recalcularCard(id, false);
     }
 
-    function buildCardHTML(id) {
+    function buildCardHTML(id, data = {}) {
+      const tipo = data.tipo || 'oportunidad';
+      const tieneCostos = !!data.costos;
       return `
         <div class="card-header">
           <div class="card-header-left">
             <span class="card-num">#${id}</span>
             <select onchange="actualizarTipoCard(${id})" id="tipo-${id}" style="height:28px; padding:0 8px; font-size:12px; font-weight:700; border:1px solid var(--border-default); border-radius:4px;">
-              <option value="oportunidad">🎯 Oportunidad</option>
-              <option value="comparable">📌 Comparable</option>
+              <option value="oportunidad" ${tipo === 'oportunidad' ? 'selected' : ''}>🎯 Oportunidad</option>
+              <option value="comparable" ${tipo === 'comparable' ? 'selected' : ''}>📌 Comparable</option>
             </select>
-            <span class="card-nombre" id="cardNombre-${id}">Nueva propiedad</span>
+            <span class="card-nombre" id="cardNombre-${id}">${data.nombre || 'Nueva propiedad'}</span>
+            <span class="tag ${tieneCostos ? 'tag-costos' : 'tag-sin-costos'}" id="tagCostos-${id}">${tieneCostos ? '🧱 Costos guardados' : 'Pendiente costos'}</span>
           </div>
           <button class="btn btn-danger" style="height:28px; font-size:12px;" onclick="eliminarPropiedad(${id})">× Eliminar</button>
         </div>
 
         <div class="card-body">
-
           <div class="input-grid-3">
             <div class="input-group" style="grid-column: span 2;">
               <label>Dirección / Nombre referencial</label>
-              <input type="text" id="nombre-${id}" placeholder="Ej: Casa Av. Italia 1234, Ñuñoa"
-                     oninput="actualizarNombre(${id})">
+              <input type="text" id="nombre-${id}" placeholder="Ej: Casa Av. Italia 1234, Ñuñoa" value="${data.nombre || ''}" oninput="actualizarNombre(${id})">
             </div>
             <div class="input-group">
               <label>Estado</label>
               <select id="estado-${id}" onchange="recalcularCard(${id})">
-                <option value="Bien">Bien</option>
-                <option value="Antiguo Bien">Antiguo Bien</option>
-                <option value="Antiguo Mal" selected>Antiguo Mal</option>
-                <option value="Antiguo">Antiguo</option>
+                <option value="Bien" ${data.estado === 'Bien' ? 'selected' : ''}>Bien</option>
+                <option value="Antiguo Bien" ${data.estado === 'Antiguo Bien' ? 'selected' : ''}>Antiguo Bien</option>
+                <option value="Antiguo Mal" ${(!data.estado || data.estado === 'Antiguo Mal') ? 'selected' : ''}>Antiguo Mal</option>
+                <option value="Antiguo" ${data.estado === 'Antiguo' ? 'selected' : ''}>Antiguo</option>
               </select>
             </div>
           </div>
@@ -637,8 +712,7 @@
           <div class="input-grid-4">
             <div class="input-group">
               <label>Precio (UF)</label>
-              <input type="number" id="precioUF-${id}" min="0" step="0.01" placeholder="0.00"
-                     oninput="recalcularCard(${id})">
+              <input type="number" id="precioUF-${id}" min="0" step="0.01" placeholder="0.00" value="${data.precioUF || ''}" oninput="recalcularCard(${id})">
             </div>
             <div class="input-group">
               <label>Precio (CLP)</label>
@@ -646,13 +720,11 @@
             </div>
             <div class="input-group">
               <label>M² Construido</label>
-              <input type="number" id="m2Construido-${id}" min="0" step="0.1" placeholder="0"
-                     oninput="recalcularCard(${id})">
+              <input type="number" id="m2Construido-${id}" min="0" step="0.1" placeholder="0" value="${data.m2Construido || ''}" oninput="recalcularCard(${id})">
             </div>
             <div class="input-group">
               <label>M² Terreno</label>
-              <input type="number" id="m2Terreno-${id}" min="0" step="0.1" placeholder="0"
-                     oninput="recalcularCard(${id})">
+              <input type="number" id="m2Terreno-${id}" min="0" step="0.1" placeholder="0" value="${data.m2Terreno || ''}" oninput="recalcularCard(${id})">
             </div>
           </div>
 
@@ -663,24 +735,27 @@
             </div>
             <div class="input-group">
               <label>Dormitorios</label>
-              <input type="number" id="dormitorios-${id}" min="0" step="1" placeholder="0"
-                     oninput="recalcularCard(${id})">
+              <input type="number" id="dormitorios-${id}" min="0" step="1" placeholder="0" value="${data.dormitorios || ''}" oninput="recalcularCard(${id})">
             </div>
             <div class="input-group">
               <label>Baños</label>
-              <input type="number" id="banos-${id}" min="0" step="1" placeholder="0"
-                     oninput="recalcularCard(${id})">
+              <input type="number" id="banos-${id}" min="0" step="1" placeholder="0" value="${data.banos || ''}" oninput="recalcularCard(${id})">
             </div>
             <div class="input-group">
               <label>M² Exterior</label>
-              <input type="number" id="m2Exterior-${id}" min="0" step="0.1" placeholder="0"
-                     oninput="recalcularCard(${id})">
+              <input type="number" id="m2Exterior-${id}" min="0" step="0.1" placeholder="0" value="${data.m2Exterior || ''}" oninput="recalcularCard(${id})">
             </div>
           </div>
 
-          <div class="input-group">
-            <label>Link portal inmobiliario (opcional)</label>
-            <input type="url" id="link-${id}" placeholder="https://...">
+          <div class="input-grid-2">
+            <div class="input-group">
+              <label>Arriendo estimado (UF/mes)</label>
+              <input type="number" id="arriendoEstimadoUF-${id}" min="0" step="0.01" placeholder="0.00" value="${data.arriendoEstimadoUF || ''}" oninput="recalcularCard(${id})">
+            </div>
+            <div class="input-group">
+              <label>Link portal inmobiliario (opcional)</label>
+              <input type="url" id="link-${id}" placeholder="https://..." value="${data.link || ''}" oninput="recalcularCard(${id})">
+            </div>
           </div>
 
           <div class="vob-section" id="vobSection-${id}">
@@ -688,13 +763,11 @@
             <div class="input-grid-4">
               <div class="input-group">
                 <label>VOB (UF)</label>
-                <input type="number" id="vobUF-${id}" min="0" step="0.01" placeholder="0.00"
-                       oninput="recalcularCard(${id})">
+                <input type="number" id="vobUF-${id}" min="0" step="0.01" placeholder="0.00" value="${data.vobUF || ''}" oninput="recalcularCard(${id})">
               </div>
               <div class="input-group">
                 <label>VOB m²</label>
-                <input type="number" id="vobM2-${id}" min="0" step="0.1" placeholder="0"
-                       oninput="recalcularCard(${id})">
+                <input type="number" id="vobM2-${id}" min="0" step="0.1" placeholder="0" value="${data.vobM2 || ''}" oninput="recalcularCard(${id})">
               </div>
               <div class="input-group">
                 <label>UF/m² VOB</label>
@@ -705,76 +778,84 @@
                 <div id="gapBruto-${id}" class="campo-calculado">—</div>
               </div>
             </div>
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Gap Neto post-costos</label>
+                <div id="gapNeto-${id}" class="campo-calculado">—</div>
+              </div>
+            </div>
           </div>
 
+          <div class="card-actions">
+            <div class="card-actions-left">
+              <button class="btn btn-secondary" onclick="abrirCostos(${id})">🧱 Editar costos</button>
+            </div>
+            <div class="card-actions-right">
+              <button class="btn btn-success" onclick="seleccionarParaBalance(${id})">📈 Seleccionar para H3</button>
+            </div>
+          </div>
         </div>
       `;
     }
 
-    // ==================== ACTUALIZAR TIPO ====================
-    function actualizarTipoCard(id) {
+    function actualizarTipoCard(id, persist = true) {
       const tipo = document.getElementById(`tipo-${id}`).value;
       const card = document.getElementById(`card-${id}`);
       const vobSection = document.getElementById(`vobSection-${id}`);
-
       card.className = `propiedad-card tipo-${tipo}`;
-
-      if (tipo === 'comparable') {
-        vobSection.classList.add('hidden');
-      } else {
-        vobSection.classList.remove('hidden');
-      }
-
-      recalcularCard(id);
+      if (tipo === 'comparable') vobSection.classList.add('hidden');
+      else vobSection.classList.remove('hidden');
+      recalcularCard(id, persist);
     }
 
     function actualizarNombre(id) {
       const val = document.getElementById(`nombre-${id}`).value;
-      const display = document.getElementById(`cardNombre-${id}`);
-      display.textContent = val || 'Nueva propiedad';
+      document.getElementById(`cardNombre-${id}`).textContent = val || 'Nueva propiedad';
       recalcularCard(id);
     }
 
-    // ==================== RECÁLCULO POR CARD ====================
-    function recalcularCard(id) {
+    function setGapField(id, fieldId, value) {
+      const el = document.getElementById(fieldId);
+      if (!el) return;
+      el.className = 'campo-calculado';
+      if (value === null || value === undefined) {
+        el.textContent = '—';
+        return;
+      }
+      const cls = value > 0 ? 'success' : value < 0 ? 'error' : '';
+      if (cls) el.classList.add(cls);
+      const signo = value > 0 ? '+' : '';
+      el.textContent = `${signo}${formatUFraw(value)} UF`;
+    }
+
+    function recalcularCard(id, persist = true) {
       const valorUF = getValorUF();
-      const precioUF = cleanNumber(document.getElementById(`precioUF-${id}`).value);
-      const m2Construido = cleanNumber(document.getElementById(`m2Construido-${id}`).value);
-      const vobUF = cleanNumber(document.getElementById(`vobUF-${id}`)?.value);
-      const vobM2 = cleanNumber(document.getElementById(`vobM2-${id}`)?.value);
-      const tipo = document.getElementById(`tipo-${id}`).value;
+      const data = getPropCardData(id);
 
-      const precioCLP = precioUF * valorUF;
-      document.getElementById(`precioCLP-${id}`).textContent =
-        precioCLP > 0 ? formatCLP(precioCLP) : '—';
+      document.getElementById(`precioCLP-${id}`).textContent = data.precioUF > 0 ? formatCLP(data.precioUF * valorUF) : '—';
+      document.getElementById(`ufM2-${id}`).textContent = data.ufM2 > 0 ? formatUFraw(data.ufM2) + ' UF/m²' : '—';
 
-      const ufM2 = m2Construido > 0 ? precioUF / m2Construido : 0;
-      document.getElementById(`ufM2-${id}`).textContent =
-        ufM2 > 0 ? formatUFraw(ufM2) + ' UF/m²' : '—';
-
-      if (tipo === 'oportunidad') {
-        const vobUfM2 = vobM2 > 0 ? vobUF / vobM2 : 0;
-        document.getElementById(`vobUfM2-${id}`).textContent =
-          vobUfM2 > 0 ? formatUFraw(vobUfM2) + ' UF/m²' : '—';
-
-        const gapBruto = vobUF > 0 && precioUF > 0 ? vobUF - precioUF : null;
+      if (data.tipo === 'oportunidad') {
+        document.getElementById(`vobUfM2-${id}`).textContent = data.vobUfM2 > 0 ? formatUFraw(data.vobUfM2) + ' UF/m²' : '—';
         const gapEl = document.getElementById(`gapBruto-${id}`);
-
-        if (gapBruto !== null) {
-          const cls = gapBruto > 0 ? 'positivo' : gapBruto < 0 ? 'negativo' : 'neutro';
-          const signo = gapBruto > 0 ? '+' : '';
-          gapEl.innerHTML = `<span class="gap-badge ${cls}">${signo}${formatUFraw(gapBruto)} UF</span>`;
+        if (data.gapBrutoUF !== null) {
+          const cls = data.gapBrutoUF > 0 ? 'positivo' : data.gapBrutoUF < 0 ? 'negativo' : 'neutro';
+          const signo = data.gapBrutoUF > 0 ? '+' : '';
+          gapEl.innerHTML = `<span class="gap-badge ${cls}">${signo}${formatUFraw(data.gapBrutoUF)} UF</span>`;
         } else {
           gapEl.textContent = '—';
         }
+        setGapField(id, `gapNeto-${id}`, data.gapNetoUF);
       }
 
+      if (persist) persistPropiedad(id);
       renderTabla();
+      updateSticky();
     }
 
-    // ==================== RECALCULAR TODO ====================
     function recalcularTodo() {
       const valorUF = getValorUF();
+      SFI.saveValorUF(valorUF);
       document.getElementById('tasaDisplay').textContent = '1 UF = ' + formatCLP(valorUF);
       document.querySelectorAll('.propiedad-card').forEach(card => {
         const id = parseInt(card.id.replace('card-', ''));
@@ -782,50 +863,45 @@
       });
     }
 
-    // ==================== ELIMINAR PROPIEDAD ====================
     function eliminarPropiedad(id) {
-      propiedades = propiedades.filter(p => p.id !== id);
+      SFI.deletePropiedad(id);
       const card = document.getElementById(`card-${id}`);
       if (card) card.remove();
       renderTabla();
+      updateSticky();
     }
 
-    // ==================== RENDER TABLA ====================
+    function abrirCostos(id) {
+      const data = persistPropiedad(id);
+      CostosModal.open(id, {
+        precioUF: data.precioUF,
+        vobUF: data.vobUF,
+        nombre: data.nombre,
+        valorUF: getValorUF()
+      });
+    }
+
+    function updateCardCostosTag(id) {
+      const prop = SFI.getPropiedad(id);
+      const tag = document.getElementById(`tagCostos-${id}`);
+      if (!tag) return;
+      const tiene = !!prop?.costos;
+      tag.className = `tag ${tiene ? 'tag-costos' : 'tag-sin-costos'}`;
+      tag.textContent = tiene ? '🧱 Costos guardados' : 'Pendiente costos';
+      setGapField(id, `gapNeto-${id}`, prop?.gapNetoUF ?? null);
+    }
+
     function renderTabla() {
       const valorUF = getValorUF();
       const tbody = document.getElementById('tablaBody');
       const resumenBar = document.getElementById('resumenBar');
-
-      const filas = [];
-      document.querySelectorAll('.propiedad-card').forEach(card => {
+      const filas = Array.from(document.querySelectorAll('.propiedad-card')).map(card => {
         const id = parseInt(card.id.replace('card-', ''));
-        const tipo = document.getElementById(`tipo-${id}`)?.value;
-        if (!tipo) return;
-
-        const nombre = document.getElementById(`nombre-${id}`)?.value || `Propiedad #${id}`;
-        const precioUF = cleanNumber(document.getElementById(`precioUF-${id}`)?.value);
-        const m2Construido = cleanNumber(document.getElementById(`m2Construido-${id}`)?.value);
-        const m2Terreno = cleanNumber(document.getElementById(`m2Terreno-${id}`)?.value);
-        const estado = document.getElementById(`estado-${id}`)?.value;
-        const dormitorios = cleanNumber(document.getElementById(`dormitorios-${id}`)?.value);
-        const banos = cleanNumber(document.getElementById(`banos-${id}`)?.value);
-        const m2Exterior = cleanNumber(document.getElementById(`m2Exterior-${id}`)?.value);
-        const link = document.getElementById(`link-${id}`)?.value;
-        const ufM2 = m2Construido > 0 ? precioUF / m2Construido : 0;
-
-        let vobUF = 0, vobM2 = 0, vobUfM2 = 0, gapBruto = null;
-        if (tipo === 'oportunidad') {
-          vobUF = cleanNumber(document.getElementById(`vobUF-${id}`)?.value);
-          vobM2 = cleanNumber(document.getElementById(`vobM2-${id}`)?.value);
-          vobUfM2 = vobM2 > 0 ? vobUF / vobM2 : 0;
-          gapBruto = vobUF > 0 && precioUF > 0 ? vobUF - precioUF : null;
-        }
-
-        filas.push({ id, tipo, nombre, precioUF, m2Construido, m2Terreno, estado, dormitorios, banos, m2Exterior, link, ufM2, vobUF, vobM2, vobUfM2, gapBruto });
+        return getPropCardData(id);
       });
 
       if (filas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="13" class="tabla-empty">Agrega propiedades para ver la comparación</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="15" class="tabla-empty">Agrega propiedades para ver la comparación</td></tr>';
         resumenBar.style.display = 'none';
         return;
       }
@@ -842,25 +918,22 @@
         });
       }
 
-      const oportunidades = filas.filter(f => f.tipo === 'oportunidad' && f.gapBruto !== null && f.gapBruto > 0);
-      const mejorGap = oportunidades.length > 0 ? Math.max(...oportunidades.map(f => f.gapBruto)) : null;
+      const oportunidades = filas.filter(f => f.tipo === 'oportunidad' && f.gapBrutoUF !== null && f.gapBrutoUF > 0);
+      const mejorGap = oportunidades.length > 0 ? Math.max(...oportunidades.map(f => f.gapBrutoUF)) : null;
 
       tbody.innerHTML = '';
       filas.forEach(f => {
-        const esMejor = f.tipo === 'oportunidad' && f.gapBruto !== null && f.gapBruto === mejorGap;
+        const esMejor = f.tipo === 'oportunidad' && f.gapBrutoUF !== null && f.gapBrutoUF === mejorGap;
         const tr = document.createElement('tr');
         tr.className = `row-${f.tipo}${esMejor ? ' mejor-gap' : ''}`;
 
-        const precioCLP = f.precioUF * valorUF;
+        const gapBrutoHTML = f.tipo === 'oportunidad' && f.gapBrutoUF !== null
+          ? `<span class="gap-badge ${f.gapBrutoUF > 0 ? 'positivo' : f.gapBrutoUF < 0 ? 'negativo' : 'neutro'}">${f.gapBrutoUF > 0 ? '+' : ''}${formatUFraw(f.gapBrutoUF)} UF</span><div class="tabla-clp">${f.gapBrutoUF > 0 ? '+' : ''}${formatCLP(f.gapBrutoUF * valorUF)}</div>`
+          : '—';
 
-        let gapHTML = '—';
-        if (f.tipo === 'oportunidad' && f.gapBruto !== null) {
-          const cls = f.gapBruto > 0 ? 'positivo' : f.gapBruto < 0 ? 'negativo' : 'neutro';
-          const signo = f.gapBruto > 0 ? '+' : '';
-          const gapCLP = f.gapBruto * valorUF;
-          gapHTML = `<span class="gap-badge ${cls}">${signo}${formatUFraw(f.gapBruto)} UF</span>
-                     <div class="tabla-clp">${signo}${formatCLP(gapCLP)}</div>`;
-        }
+        const gapNetoHTML = f.tipo === 'oportunidad' && f.gapNetoUF !== null
+          ? `<span class="gap-badge ${f.gapNetoUF > 0 ? 'positivo' : f.gapNetoUF < 0 ? 'negativo' : 'neutro'}">${f.gapNetoUF > 0 ? '+' : ''}${formatUFraw(f.gapNetoUF)} UF</span><div class="tabla-clp">${f.gapNetoUF > 0 ? '+' : ''}${formatCLP(f.gapNetoUF * valorUF)}</div>`
+          : '<span class="text-muted">—</span>';
 
         const vobHTML = f.tipo === 'oportunidad' && f.vobUF > 0
           ? `<span class="tabla-uf">${formatUFraw(f.vobUF)} UF</span><div class="tabla-clp">${formatCLP(f.vobUF * valorUF)}</div>`
@@ -870,29 +943,26 @@
           ? `${formatUFraw(f.vobUfM2)} UF/m²`
           : '<span class="text-muted">—</span>';
 
-        const linkHTML = f.link
-          ? `<a href="${f.link}" target="_blank" class="link-portal">🔗 Ver</a>`
+        const linkHTML = f.link ? `<a href="${f.link}" target="_blank" rel="noopener noreferrer" class="link-portal">🔗 Ver</a>` : '—';
+        const arriendoHTML = f.arriendoEstimadoUF > 0
+          ? `<span class="tabla-uf">${formatUFraw(f.arriendoEstimadoUF)} UF</span><div class="tabla-clp">${formatCLP(f.arriendoEstimadoUF * valorUF)}</div>`
           : '—';
 
         tr.innerHTML = `
           <td><span class="tag tag-${f.tipo}">${f.tipo === 'oportunidad' ? '🎯 Oport.' : '📌 Comp.'}</span></td>
-          <td>
-            <div style="font-weight:600;">${f.nombre}</div>
-            ${esMejor ? '<div style="font-size:10px; color:var(--success); font-weight:700; margin-top:2px;">⭐ Mayor gap</div>' : ''}
-          </td>
-          <td>
-            <span class="tabla-uf">${f.precioUF > 0 ? formatUFraw(f.precioUF) + ' UF' : '—'}</span>
-            <div class="tabla-clp">${precioCLP > 0 ? formatCLP(precioCLP) : ''}</div>
-          </td>
+          <td><div style="font-weight:600;">${f.nombre}</div>${esMejor ? '<div style="font-size:10px; color:var(--success); font-weight:700; margin-top:2px;">⭐ Mayor gap</div>' : ''}</td>
+          <td><span class="tabla-uf">${f.precioUF > 0 ? formatUFraw(f.precioUF) + ' UF' : '—'}</span><div class="tabla-clp">${f.precioUF > 0 ? formatCLP(f.precioUF * valorUF) : ''}</div></td>
           <td>${f.m2Construido > 0 ? f.m2Construido + ' m²' : '—'}</td>
           <td>${f.m2Terreno > 0 ? f.m2Terreno + ' m²' : '—'}</td>
           <td style="font-weight:600; color:var(--primary);">${f.ufM2 > 0 ? formatUFraw(f.ufM2) + ' UF/m²' : '—'}</td>
           <td><span class="estado-badge ${ESTADO_CLASS[f.estado] || ''}">${f.estado}</span></td>
           <td>${f.dormitorios > 0 || f.banos > 0 ? `${f.dormitorios}D / ${f.banos}B` : '—'}</td>
           <td>${f.m2Exterior > 0 ? f.m2Exterior + ' m²' : '—'}</td>
+          <td>${arriendoHTML}</td>
           <td>${vobHTML}</td>
           <td style="color:var(--primary);">${vobUfM2HTML}</td>
-          <td>${gapHTML}</td>
+          <td>${gapBrutoHTML}</td>
+          <td>${gapNetoHTML}</td>
           <td>${linkHTML}</td>
         `;
         tbody.appendChild(tr);
@@ -907,47 +977,25 @@
       const nTotal = filas.length;
       const nOportunidades = filas.filter(f => f.tipo === 'oportunidad').length;
       const nComparables = filas.filter(f => f.tipo === 'comparable').length;
-
+      const nConCostos = filas.filter(f => !!f.costos).length;
       const ufM2Vals = filas.filter(f => f.ufM2 > 0).map(f => f.ufM2);
       const avgUfM2 = ufM2Vals.length > 0 ? ufM2Vals.reduce((a, b) => a + b, 0) / ufM2Vals.length : 0;
-
-      const gapVals = filas.filter(f => f.tipo === 'oportunidad' && f.gapBruto !== null).map(f => f.gapBruto);
+      const gapVals = filas.filter(f => f.tipo === 'oportunidad' && f.gapBrutoUF !== null).map(f => f.gapBrutoUF);
       const mejorGapVal = gapVals.length > 0 ? Math.max(...gapVals) : null;
 
       resumenBar.innerHTML = `
-        <div class="resumen-item">
-          <span class="resumen-label">Total propiedades</span>
-          <span class="resumen-value">${nTotal}</span>
-        </div>
-        <div class="resumen-item">
-          <span class="resumen-label">Oportunidades</span>
-          <span class="resumen-value accent">${nOportunidades}</span>
-        </div>
-        <div class="resumen-item">
-          <span class="resumen-label">Comparables</span>
-          <span class="resumen-value">${nComparables}</span>
-        </div>
-        ${avgUfM2 > 0 ? `
-        <div class="resumen-item">
-          <span class="resumen-label">UF/m² promedio</span>
-          <span class="resumen-value">${formatUFraw(avgUfM2)} UF/m²</span>
-        </div>` : ''}
-        ${mejorGapVal !== null ? `
-        <div class="resumen-item">
-          <span class="resumen-label">Mejor gap bruto</span>
-          <span class="resumen-value success">+${formatUFraw(mejorGapVal)} UF</span>
-        </div>` : ''}
+        <div class="resumen-item"><span class="resumen-label">Total propiedades</span><span class="resumen-value">${nTotal}</span></div>
+        <div class="resumen-item"><span class="resumen-label">Oportunidades</span><span class="resumen-value accent">${nOportunidades}</span></div>
+        <div class="resumen-item"><span class="resumen-label">Comparables</span><span class="resumen-value">${nComparables}</span></div>
+        <div class="resumen-item"><span class="resumen-label">Con costos</span><span class="resumen-value">${nConCostos}</span></div>
+        ${avgUfM2 > 0 ? `<div class="resumen-item"><span class="resumen-label">UF/m² promedio</span><span class="resumen-value">${formatUFraw(avgUfM2)} UF/m²</span></div>` : ''}
+        ${mejorGapVal !== null ? `<div class="resumen-item"><span class="resumen-label">Mejor gap bruto</span><span class="resumen-value success">+${formatUFraw(mejorGapVal)} UF</span></div>` : ''}
       `;
     }
 
-    // ==================== ORDENAR ====================
     function ordenarPor(col) {
-      if (sortCol === col) {
-        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        sortCol = col;
-        sortDir = 'asc';
-      }
+      if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortCol = col; sortDir = 'asc'; }
 
       document.querySelectorAll('.tabla-comparativa th').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
@@ -961,11 +1009,24 @@
         const icon = thActivo.querySelector('.sort-icon');
         if (icon) icon.textContent = sortDir === 'asc' ? '↑' : '↓';
       }
-
       renderTabla();
     }
 
-    // ==================== ACCIONES ====================
+    function seleccionarParaBalance(id) {
+      persistPropiedad(id);
+      SFI.saveH3Params({ propiedadId: id });
+      window.location.href = './balance-final.html';
+    }
+
+    function continuarABalance() {
+      const oportunidades = SFI.loadOportunidades();
+      if (oportunidades.length === 0) {
+        alert('Primero agrega al menos una propiedad tipo Oportunidad.');
+        return;
+      }
+      window.location.href = './balance-final.html';
+    }
+
     function scrollToTabla() {
       document.getElementById('seccionTabla').scrollIntoView({ behavior: 'smooth' });
     }
@@ -979,26 +1040,64 @@
         texto += line + '\n';
       });
       navigator.clipboard.writeText(texto).then(() => {
-        alert('✅ Tabla copiada al portapapeles (pega en Excel o Google Sheets)');
+        alert('✅ Tabla copiada al portapapeles');
       }).catch(() => {
-        alert('❌ Error al copiar. Intenta nuevamente.');
+        alert('❌ Error al copiar.');
       });
     }
 
     function limpiarTodo() {
-      if (!confirm('¿Seguro que deseas eliminar todas las propiedades?')) return;
-      propiedades = [];
+      if (!confirm('¿Seguro que deseas eliminar todas las propiedades guardadas?')) return;
+      SFI.clearAll();
       propiedadCounter = 0;
       document.getElementById('propiedadesContainer').innerHTML = '';
-      renderTabla();
-    }
-
-    // ==================== INIT ====================
-    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('valorUF').value = 38500;
       recalcularTodo();
       agregarPropiedad();
+    }
+
+    function updateSticky() {
+      const props = SFI.loadPropiedades();
+      const oportunidades = props.filter(p => p.tipo === 'oportunidad');
+      const conCostos = props.filter(p => !!p.costos);
+      document.getElementById('stickyCount').textContent = `${props.length} propiedades`;
+      document.getElementById('stickyOport').textContent = `${oportunidades.length} oportunidades`;
+      document.getElementById('stickyConCostos').textContent = `${conCostos.length} con costos cargados`;
+    }
+
+    function hydrateFromState() {
+      const props = SFI.loadPropiedades();
+      const valorUF = SFI.loadValorUF();
+      document.getElementById('valorUF').value = valorUF;
+      document.getElementById('tasaDisplay').textContent = '1 UF = ' + formatCLP(valorUF);
+
+      if (props.length === 0) {
+        agregarPropiedad();
+        return;
+      }
+
+      props.forEach(p => agregarPropiedad(p));
+      document.querySelectorAll('.propiedad-card').forEach(card => {
+        const id = parseInt(card.id.replace('card-', ''));
+        updateCardCostosTag(id);
+        recalcularCard(id, false);
+      });
+      renderTabla();
+      updateSticky();
+    }
+
+    window.addEventListener('sfi:costos-saved', e => {
+      const { id } = e.detail;
+      updateCardCostosTag(id);
+      recalcularCard(id, false);
+      renderTabla();
+      updateSticky();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      hydrateFromState();
+      updateSticky();
     });
   </script>
-
 </body>
 </html>
