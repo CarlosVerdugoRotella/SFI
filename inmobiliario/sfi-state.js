@@ -1,7 +1,11 @@
 /**
- * SFI State Manager v2
+ * SFI State Manager v2.1
  * Almacena un array de propiedades, cada una con sus costos embebidos.
  * Bridge entre H1 (Sensibilizador), costos-modal.js y H3 (Balance Financiero).
+ *
+ * v2.1 — backend cambiado de localStorage a objeto en memoria.
+ * localStorage está bloqueado en sandboxes/iframes (Perplexity, GitHub Pages embebido).
+ * La API pública es 100% idéntica a v2 — ningún consumidor requiere cambios.
  *
  * Estructura por propiedad:
  * {
@@ -45,170 +49,157 @@
  * }
  */
 
-const SFI = {
-  KEY: 'sfi_inmobiliario',
+const SFI = (() => {
+  // Backend en memoria — reemplaza localStorage para compatibilidad con sandboxes/iframes
+  let _state = {};
 
-  // ── Core ──────────────────────────────────────────────────────────────────
+  function _read() {
+    return _state;
+  }
 
-  _read() {
-    try {
-      return JSON.parse(localStorage.getItem(this.KEY) || '{}');
-    } catch { return {}; }
-  },
+  function _write(data) {
+    _state = data;
+  }
 
-  _write(data) {
-    try {
-      localStorage.setItem(this.KEY, JSON.stringify(data));
-    } catch (e) {
-      console.error('SFI: error escribiendo localStorage', e);
-    }
-  },
+  return {
 
-  clearAll() {
-    localStorage.removeItem(this.KEY);
-  },
+    clearAll() {
+      _state = {};
+    },
 
-  // ── Valor UF global ───────────────────────────────────────────────────────
+    // ── Valor UF global ─────────────────────────────────────────────────────
 
-  saveValorUF(valorUF) {
-    const d = this._read();
-    d.valorUF = valorUF || 38500;
-    this._write(d);
-  },
+    saveValorUF(valorUF) {
+      const d = _read();
+      d.valorUF = valorUF || 38500;
+      _write(d);
+    },
 
-  loadValorUF() {
-    return this._read().valorUF || 38500;
-  },
+    loadValorUF() {
+      return _read().valorUF || 38500;
+    },
 
-  // ── Propiedades ───────────────────────────────────────────────────────────
+    // ── Propiedades ──────────────────────────────────────────────────────────
 
-  /**
-   * Guarda o actualiza una propiedad completa.
-   * Si ya existe un objeto con el mismo id, hace merge (preserva costos si no se envían).
-   * @param {Object} propiedad — debe incluir `id`
-   */
-  savePropiedad(propiedad) {
-    const d = this._read();
-    if (!d.propiedades) d.propiedades = [];
+    /**
+     * Guarda o actualiza una propiedad completa.
+     * Si ya existe un objeto con el mismo id, hace merge (preserva costos si no se envían).
+     * @param {Object} propiedad — debe incluir `id`
+     */
+    savePropiedad(propiedad) {
+      const d = _read();
+      if (!d.propiedades) d.propiedades = [];
 
-    const idx = d.propiedades.findIndex(p => p.id === propiedad.id);
-    if (idx >= 0) {
-      // Merge: preserva costos si no vienen en el nuevo objeto
-      const existing = d.propiedades[idx];
-      d.propiedades[idx] = {
-        ...existing,
-        ...propiedad,
-        costos: propiedad.costos !== undefined ? propiedad.costos : existing.costos,
-      };
-    } else {
-      d.propiedades.push({
-        costos: null,
-        gapNetoUF: null,
-        ...propiedad,
-      });
-    }
+      const idx = d.propiedades.findIndex(p => p.id === propiedad.id);
+      if (idx >= 0) {
+        const existing = d.propiedades[idx];
+        d.propiedades[idx] = {
+          ...existing,
+          ...propiedad,
+          costos: propiedad.costos !== undefined ? propiedad.costos : existing.costos,
+        };
+      } else {
+        d.propiedades.push({
+          costos: null,
+          gapNetoUF: null,
+          ...propiedad,
+        });
+      }
 
-    this._write(d);
-  },
+      _write(d);
+    },
 
-  /**
-   * Guarda los costos de una propiedad específica y recalcula gapNetoUF.
-   * @param {Number} id — id de la propiedad
-   * @param {Object} costos — objeto costos completo
-   */
-  saveCostos(id, costos) {
-    const d = this._read();
-    if (!d.propiedades) return;
+    /**
+     * Guarda los costos de una propiedad específica y recalcula gapNetoUF.
+     * @param {Number} id — id de la propiedad
+     * @param {Object} costos — objeto costos completo
+     */
+    saveCostos(id, costos) {
+      const d = _read();
+      if (!d.propiedades) return;
 
-    const prop = d.propiedades.find(p => p.id === id);
-    if (!prop) return;
+      const prop = d.propiedades.find(p => p.id === id);
+      if (!prop) return;
 
-    prop.costos = costos;
-    prop.gapNetoUF = (prop.gapBrutoUF || 0) - (costos.costoTotalUF || 0);
+      prop.costos = costos;
+      prop.gapNetoUF = (prop.gapBrutoUF || 0) - (costos.costoTotalUF || 0);
 
-    this._write(d);
-  },
+      _write(d);
+    },
 
-  /**
-   * Retorna una propiedad por id.
-   * @param {Number} id
-   * @returns {Object|null}
-   */
-  getPropiedad(id) {
-    const d = this._read();
-    return (d.propiedades || []).find(p => p.id === id) || null;
-  },
+    /**
+     * Retorna una propiedad por id.
+     * @param {Number} id
+     * @returns {Object|null}
+     */
+    getPropiedad(id) {
+      const d = _read();
+      return (d.propiedades || []).find(p => p.id === id) || null;
+    },
 
-  /**
-   * Retorna todas las propiedades guardadas.
-   * @returns {Array}
-   */
-  loadPropiedades() {
-    return this._read().propiedades || [];
-  },
+    /**
+     * Retorna todas las propiedades guardadas.
+     * @returns {Array}
+     */
+    loadPropiedades() {
+      return _read().propiedades || [];
+    },
 
-  /**
-   * Elimina una propiedad por id.
-   * @param {Number} id
-   */
-  deletePropiedad(id) {
-    const d = this._read();
-    if (!d.propiedades) return;
-    d.propiedades = d.propiedades.filter(p => p.id !== id);
-    this._write(d);
-  },
+    /**
+     * Elimina una propiedad por id.
+     * @param {Number} id
+     */
+    deletePropiedad(id) {
+      const d = _read();
+      if (!d.propiedades) return;
+      d.propiedades = d.propiedades.filter(p => p.id !== id);
+      _write(d);
+    },
 
-  /**
-   * Retorna solo las propiedades de tipo 'oportunidad' que tienen costos cargados.
-   * Útil para el dropdown de H3.
-   * @returns {Array}
-   */
-  loadOportunidades() {
-    return this.loadPropiedades().filter(p => p.tipo === 'oportunidad');
-  },
+    /**
+     * Retorna solo las propiedades de tipo 'oportunidad'.
+     * Útil para el dropdown de H3.
+     * @returns {Array}
+     */
+    loadOportunidades() {
+      return this.loadPropiedades().filter(p => p.tipo === 'oportunidad');
+    },
 
-  // ── H3: Parámetros financieros ────────────────────────────────────────────
+    // ── H3: Parámetros financieros ───────────────────────────────────────────
 
-  /**
-   * Guarda los parámetros financieros de H3 (crédito, estructura, año venta).
-   * @param {Object} params
-   * @param {Number}  params.propiedadId       — id de la propiedad seleccionada
-   * @param {String}  params.estructura        — 'persona_natural' | 'sociedad'
-   * @param {Boolean} params.usaCredito
-   * @param {Number}  params.creditoUF
-   * @param {Number}  params.tasaAnualPct
-   * @param {Number}  params.plazoAnios
-   * @param {Number}  params.anioVenta
-   * @param {Boolean} params.exencionDisponible
-   * @param {Number}  params.tasaMarginalPct   — solo si estructura = sociedad
-   */
-  saveH3Params(params) {
-    const d = this._read();
-    d.h3 = { ...params };
-    this._write(d);
-  },
+    /**
+     * Guarda los parámetros financieros de H3.
+     * @param {Object} params
+     */
+    saveH3Params(params) {
+      const d = _read();
+      d.h3 = { ...params };
+      _write(d);
+    },
 
-  loadH3Params() {
-    return this._read().h3 || null;
-  },
+    loadH3Params() {
+      return _read().h3 || null;
+    },
 
-  // ── Utilidades ────────────────────────────────────────────────────────────
+    // ── Utilidades ───────────────────────────────────────────────────────────
 
-  /**
-   * Retorna un snapshot legible de todo el estado (útil para debug).
-   */
-  debug() {
-    const d = this._read();
-    console.table((d.propiedades || []).map(p => ({
-      id:         p.id,
-      nombre:     p.nombre,
-      tipo:       p.tipo,
-      precioUF:   p.precioUF,
-      vobUF:      p.vobUF,
-      gapBruto:   p.gapBrutoUF,
-      costos:     p.costos ? p.costos.costoTotalUF : '—',
-      gapNeto:    p.gapNetoUF,
-    })));
-    return d;
-  },
-};
+    /**
+     * Retorna un snapshot legible de todo el estado (útil para debug).
+     */
+    debug() {
+      const d = _read();
+      console.table((d.propiedades || []).map(p => ({
+        id:       p.id,
+        nombre:   p.nombre,
+        tipo:     p.tipo,
+        precioUF: p.precioUF,
+        vobUF:    p.vobUF,
+        gapBruto: p.gapBrutoUF,
+        costos:   p.costos ? p.costos.costoTotalUF : '—',
+        gapNeto:  p.gapNetoUF,
+      })));
+      return d;
+    },
+
+  };
+})();
