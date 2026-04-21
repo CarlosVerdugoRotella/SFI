@@ -2,7 +2,48 @@
 
 ---
 
-## 2026-04-20 — COMPLETADO ✅
+## 2026-04-20 — COMPLETADO ✅ (Sesión #3)
+
+### Qué se hizo
+
+**Bug fix: botones "Agregar propiedad" no funcionaban en sensibilizador.**
+
+- Diagnosticado problema raíz: `localStorage` bloqueado en sandbox/iframe (Perplexity, GitHub Pages embebido). `_write()` fallaba silenciosamente, `_read()` retornaba siempre `{}`, y `SFI.getPropiedad(id)` retornaba `null` — interrumpiendo el flujo de render de cada card.
+- Actualizado `inmobiliario/sfi-state.js` → **v2.1** (commit `4806b4d`)
+  - Backend de `_read()` / `_write()` / `clearAll()` reemplazado por objeto en memoria (`let _state = {}`)
+  - Toda la API pública queda **100% idéntica** a v2 — ningún otro archivo requiere cambios
+  - `SFI` ahora es un IIFE (`(() => { ... })()`) para encapsular `_state` como variable privada
+  - Impacto en `sensibilizador-propiedades.html`, `costos-modal.js` y `balance-final.html`: **cero cambios requeridos**
+
+**Consideración para el futuro:** si el sistema se despliega en un contexto donde `localStorage` está disponible (servidor propio, no iframe), se puede restaurar el backend original cambiando solo `_read()`, `_write()` y `clearAll()`. La API pública no cambia.
+
+---
+
+### Estado de archivos del flujo inmobiliario (actualizado)
+
+| Archivo | Estado | Commit |
+|---|---|---|
+| `inmobiliario/sfi-state.js` | ✅ v2.1 funcional (fix localStorage) | `4806b4d` |
+| `inmobiliario/costos-modal.js` | ✅ funcional | `eda8c99` |
+| `inmobiliario/sensibilizador-propiedades.html` | ✅ v2 integrado | `3dd4c6a` |
+| `inmobiliario/balance-final.html` | ✅ H3 listo | `c49b374` |
+| `inmobiliario/calculadora-inversion-inmob.html` | 🔲 pendiente | — |
+
+---
+
+### Próximo paso
+
+Sin cambios respecto a sesión anterior. Siguiente tarea sigue siendo:
+
+Construir `inmobiliario/calculadora-inversion-inmob.html`:
+1. Shell HTML + `<script src="../gastro/engine.js">` + `<script src="./sfi-state.js">`
+2. Sidebar: selector patrón → inputs inmob (prellenados desde H3) → tiers → parámetros societarios
+3. Resultados: KPIs TIR/VAN/ROI/Payback + gráfico + tabla mensual
+4. Banner H3 si hay datos guardados
+
+---
+
+## 2026-04-20 — COMPLETADO ✅ (Sesión #2)
 
 ### Qué se hizo
 
@@ -76,7 +117,6 @@ H3: balance-final.html
 {
   propiedadId,
   patronSalida,          // 'arriendo-mensual' | 'venta-activo' | 'hibrido'
-  // heredados de H1/costos
   precioCompraUF,
   costosTotalesUF,
   gapBrutoUF, gapNetoUF,
@@ -84,13 +124,11 @@ H3: balance-final.html
   precioVentaUF,         // ← vobUF de H1
   valorUF,
   inversionBaseUF,       // precioCompraUF + costosTotalesUF
-  // capturados en H3
-  ajusteAnualPct,        // ← nuevo
-  plazoAnios,            // ← nuevo
-  mesVenta,              // ← nuevo
-  costoVentaPct,         // ← nuevo, default 0.02
-  costoVentaFijoCLP,     // ← nuevo, default 400.000
-  // calculados en H3 (preview)
+  ajusteAnualPct,
+  plazoAnios,
+  mesVenta,
+  costoVentaPct,         // default 0.02
+  costoVentaFijoCLP,     // default 400.000
   ventaNetaUF, utilidadVentaUF, roiVenta,
   arriendoAnualUF, yieldBruto, yieldSobreInversion, paybackAnios
 }
@@ -118,57 +156,29 @@ Al cargar, leer `SFI.loadH3Params()` y prellenar automáticamente:
 | Inversión total tiers (suma) | `h3.inversionBaseUF × valorUF` como referencia visible |
 
 **2. Selector de patrón de salida**
-En la sidebar de inputs, antes de los tiers, agregar:
 ```
 Patrón de salida: [ arriendo-mensual | venta-activo | híbrido ]
 ```
-Mostrar/ocultar campos según patrón (igual que en H3).
-Preseleccionar con `h3.patronSalida`.
+Mostrar/ocultar campos según patrón. Preseleccionar con `h3.patronSalida`.
 
 **3. Llamada al orquestador del motor**
-En `getDividendoMensual()`, pasar:
 ```js
 patron: h3.patronSalida,
 inmobParams: {
-  arriendoBaseUF: h3.arriendoBaseUF,
-  ajusteAnualPct: h3.ajusteAnualPct,
-  plazoAnios: h3.plazoAnios,
-  precioVentaUF: h3.precioVentaUF,
-  mesVenta: h3.mesVenta,
-  costoVentaPct: h3.costoVentaPct,
-  costoVentaFijoCLP: h3.costoVentaFijoCLP,
-  valorUF: h3.valorUF
+  arriendoBaseUF, ajusteAnualPct, plazoAnios,
+  precioVentaUF, mesVenta, costoVentaPct, costoVentaFijoCLP, valorUF
 }
 ```
 
-**4. Inputs societarios que el usuario sigue ingresando en la calculadora** (no vienen de H3)
+**4. Inputs societarios (no vienen de H3, los ingresa el usuario)**
 - Tiers: cantidad, monto individual (CLP o UF), mes inversión, mes inicio retornos, tipo holder
-- `pctSocMicroinv`, `pctEnSociedad`, `impuesto1Cat`, `retencion`
-- `tasaDescuento` para VAN
+- `pctSocMicroinv`, `pctEnSociedad`, `impuesto1Cat`, `retencion`, `tasaDescuento`
 
-**5. Banner informativo**
-Si `SFI.loadH3Params()` está disponible, mostrar un banner colapsable al inicio:
-```
-🏠 Datos pre-cargados desde Balance Final H3
-   Propiedad: [nombre]  Patrón: [patron]  Compra: [X UF]  Costos: [Y UF]  VOB: [Z UF]
-```
-Si no hay H3, la calculadora debe funcionar igual que la versión gastro — inputs manuales.
+**5. Banner H3 colapsable** si `SFI.loadH3Params()` tiene datos.
 
 ---
 
-### Estado de archivos del flujo inmobiliario
-
-| Archivo | Estado | Commit |
-|---|---|---|
-| `inmobiliario/sfi-state.js` | ✅ v2 funcional | `b1eef05` |
-| `inmobiliario/costos-modal.js` | ✅ funcional | `eda8c99` |
-| `inmobiliario/sensibilizador-propiedades.html` | ✅ v2 integrado | `3dd4c6a` |
-| `inmobiliario/balance-final.html` | ✅ H3 listo | `c49b374` |
-| `inmobiliario/calculadora-inversion-inmob.html` | 🔲 pendiente | — |
-
----
-
-### Nomenclatura final (actualizada)
+### Nomenclatura final
 
 | Paso | Archivo | Función |
 |---|---|---|
@@ -178,20 +188,8 @@ Si no hay H3, la calculadora debe funcionar igual que la versión gastro — inp
 | Motor | `../gastro/engine.js` | Motor financiero compartido (gastro + inmobiliario) |
 | Calculadora | `calculadora-inversion-inmob.html` | UI societaria + motor + outputs TIR/VAN/ROI |
 
-**Nota:** `calculadora-costos.html` standalone queda como herramienta auxiliar pero el flujo principal ya no pasa por ella. El modal es la vía recomendada.
-
 ---
 
 ### Necesito de otros agentes
 
 - **Agent-Modelo:** confirmar que `engine.js` en `gastro/` es la referencia a importar con `../gastro/engine.js` desde `/inmobiliario/`. Si la ruta genera problemas en GitHub Pages, evaluar copiar el engine a `/inmobiliario/engine.js`.
-
----
-
-### Próximo paso
-
-Construir `inmobiliario/calculadora-inversion-inmob.html`:
-1. Shell HTML + `<script src="../gastro/engine.js">` + `<script src="./sfi-state.js">`
-2. Sidebar: selector patrón → inputs inmob (prellenados desde H3) → tiers → parámetros societarios
-3. Resultados: KPIs TIR/VAN/ROI/Payback + gráfico + tabla mensual
-4. Banner H3 si hay datos guardados
