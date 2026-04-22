@@ -1,11 +1,13 @@
 /**
- * SFI State Manager v2.1
+ * SFI State Manager v2.2
  * Almacena un array de propiedades, cada una con sus costos embebidos.
  * Bridge entre H1 (Sensibilizador), costos-modal.js y H3 (Balance Financiero).
  *
- * v2.1 — backend cambiado de localStorage a objeto en memoria.
- * localStorage está bloqueado en sandboxes/iframes (Perplexity, GitHub Pages embebido).
- * La API pública es 100% idéntica a v2 — ningún consumidor requiere cambios.
+ * v2.2 — backend cambiado de objeto en memoria a sessionStorage.
+ * El objeto en memoria no sobrevivía la navegación entre páginas (sensibilizador → balance-final).
+ * sessionStorage persiste durante toda la sesión del tab y funciona en GitHub Pages / navegador normal.
+ * Si sessionStorage está bloqueado (iframe sandboxed), _read/_write fallan silenciosamente y
+ * retornan {} como fallback — la app no explota.
  *
  * Estructura por propiedad:
  * {
@@ -50,21 +52,28 @@
  */
 
 const SFI = (() => {
-  // Backend en memoria — reemplaza localStorage para compatibilidad con sandboxes/iframes
-  let _state = {};
+  const _KEY = 'sfi_state';
 
   function _read() {
-    return _state;
+    try {
+      return JSON.parse(sessionStorage.getItem(_KEY) || '{}');
+    } catch (e) {
+      return {};
+    }
   }
 
   function _write(data) {
-    _state = data;
+    try {
+      sessionStorage.setItem(_KEY, JSON.stringify(data));
+    } catch (e) {
+      // sessionStorage bloqueado (iframe sandboxed) — silencioso
+    }
   }
 
   return {
 
     clearAll() {
-      _state = {};
+      try { sessionStorage.removeItem(_KEY); } catch (e) {}
     },
 
     // ── Valor UF global ─────────────────────────────────────────────────────
