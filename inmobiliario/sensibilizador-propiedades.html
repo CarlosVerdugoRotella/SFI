@@ -672,7 +672,7 @@
       container.appendChild(card);
 
       actualizarTipoCard(id, false);
-      recalcularCard(id, false);
+      recalcularCard(id, data === null);
     }
 
     function buildCardHTML(id, data = {}) {
