@@ -675,7 +675,8 @@
       recalcularCard(id, data === null);
     }
 
-    function buildCardHTML(id, data = {}) {
+ function buildCardHTML(id, data = {}) {
+      data = data || {};
       const tipo = data.tipo || 'oportunidad';
       const tieneCostos = !!data.costos;
       return `
