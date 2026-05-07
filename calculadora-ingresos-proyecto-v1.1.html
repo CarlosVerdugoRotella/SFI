@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Ingresos por Proyecto v1.1</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@700,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+    --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+    --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+    --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+    --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+    --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+    --radius-sm: 0.375rem; --radius-md: 0.5rem;
+    --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+    --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    --font-display: 'Cabinet Grotesk', 'Arial Black', sans-serif;
+    --font-body: 'Satoshi', 'Inter', sans-serif;
+    --content-default: 960px;
+  }
+  :root, [data-theme="light"] {
+    --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9;
+    --color-surface-offset: #f0ede8; --color-border: rgba(40,37,29,0.12);
+    --color-divider: #dcd9d5; --color-text: #28251d; --color-text-muted: #7a7974;
+    --color-text-faint: #bab9b4; --color-primary: #01696f; --color-primary-hover: #0c4e54;
+    --color-primary-highlight: #cedcd8; --color-gold: #d19900; --color-gold-highlight: #f0e9cc;
+    --color-success: #437a22; --color-success-highlight: #d4dfcc;
+    --color-blue: #006494; --color-blue-highlight: #cde0ec;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --chart-grid: rgba(40,37,29,0.08);
+  }
+  [data-theme="dark"] {
+    --color-bg: #0F1117; --color-surface: #161926; --color-surface-2: #1E2235;
+    --color-surface-offset: #252A40; --color-border: rgba(205,204,202,0.10);
+    --color-divider: #262523; --color-text: #e8e7e4; --color-text-muted: #8892A4;
+    --color-text-faint: #4a5068; --color-primary: #4f98a3; --color-primary-hover: #227f8b;
+    --color-primary-highlight: #1a3a3f; --color-gold: #e8af34; --color-gold-highlight: #2e2510;
+    --color-success: #6daa45; --color-success-highlight: #1a2e12;
+    --color-blue: #5591c7; --color-blue-highlight: #0e2035;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.25); --shadow-md: 0 4px 16px rgba(0,0,0,0.35);
+    --chart-grid: rgba(255,255,255,0.06);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: var(--font-body); font-size: var(--text-base);
+    color: var(--color-text); background: var(--color-bg);
+    min-height: 100dvh; padding: var(--space-6) var(--space-4);
+    transition: background var(--transition-interactive), color var(--transition-interactive);
+  }
+  .container { max-width: var(--content-default); margin-inline: auto; }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--space-8); padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .logo-area { display: flex; align-items: center; gap: var(--space-3); }
+  .logo-svg { width: 40px; height: 40px; }
+  .brand-name { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; letter-spacing: -0.02em; }
+  .brand-sub { font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: var(--space-3); }
+  .version-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: var(--radius-full); background: var(--color-primary-highlight); color: var(--color-primary); }
+  .theme-toggle {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-full); width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--color-text-muted); transition: all var(--transition-interactive);
+  }
+  .theme-toggle:hover { background: var(--color-surface-2); color: var(--color-text); }
+  .page-title { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.03em; margin-bottom: var(--space-2); }
+  .page-subtitle { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-8); }
+  .grid-main { display: grid; grid-template-columns: 1fr 320px; gap: var(--space-6); align-items: start; }
+  @media (max-width: 768px) { .grid-main { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl); padding: var(--space-6);
+    box-shadow: var(--shadow-sm); margin-bottom: var(--space-5);
+    transition: background var(--transition-interactive), border-color var(--transition-interactive);
+  }
+  .card:last-child { margin-bottom: 0; }
+  .card-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border); }
+  .stage-badge { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: var(--space-1) var(--space-3); border-radius: var(--radius-full); }
+  .badge-e1 { background: var(--color-primary-highlight); color: var(--color-primary); }
+  .badge-e2 { background: var(--color-gold-highlight); color: var(--color-gold); }
+  .badge-e3 { background: var(--color-success-highlight); color: var(--color-success); }
+  .badge-chart { background: var(--color-blue-highlight); color: var(--color-blue); }
+  .card-title { font-family: var(--font-display); font-size: var(--text-base); font-weight: 700; }
+  .card-desc { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1); }
+  .fields { display: flex; flex-direction: column; gap: var(--space-4); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: var(--space-2); }
+  label { font-size: var(--text-xs); font-weight: 500; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .input-wrap { position: relative; }
+  .prefix, .suffix { position: absolute; top: 50%; transform: translateY(-50%); font-size: var(--text-sm); color: var(--color-text-muted); pointer-events: none; font-weight: 500; }
+  .prefix { left: var(--space-3); }
+  .suffix { right: var(--space-3); }
+  input[type="text"] {
+    width: 100%; background: var(--color-surface-2); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: var(--space-3) var(--space-4);
+    font-family: var(--font-body); font-size: var(--text-sm); color: var(--color-text);
+    transition: border-color var(--transition-interactive), box-shadow var(--transition-interactive);
+  }
+  input[type="text"]:focus {
+    outline: none; border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(79,152,163,0.15);
+  }
+  .has-prefix input { padding-left: var(--space-8); }
+  .has-suffix input { padding-right: var(--space-8); }
+  .field-output {
+    background: var(--color-surface-offset); border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4); font-size: var(--text-sm);
+    color: var(--color-text-muted); display: flex; justify-content: space-between;
+    align-items: center; margin-top: var(--space-2);
+  }
+  .field-output strong { font-size: var(--text-sm); font-weight: 700; color: var(--color-primary); font-variant-numeric: tabular-nums; }
+  .info-row {
+    display: flex; align-items: center; gap: var(--space-3);
+    background: var(--color-blue-highlight); border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4); font-size: var(--text-xs); color: var(--color-blue);
+    margin-top: var(--space-2);
+  }
+  .results-panel { position: sticky; top: var(--space-6); }
+  .results-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: var(--space-6); box-shadow: var(--shadow-md); }
+  .results-title { font-family: var(--font-display); font-size: var(--text-base); font-weight: 800; letter-spacing: -0.02em; margin-bottom: var(--space-5); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border); }
+  .result-line { display: flex; justify-content: space-between; align-items: baseline; padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); gap: var(--space-2); }
+  .result-line:last-of-type { border-bottom: none; }
+  .result-label { font-size: var(--text-xs); color: var(--color-text-muted); max-width: 60%; line-height: 1.4; }
+  .result-label small { display: block; font-size: 0.7rem; color: var(--color-text-faint); margin-top: 2px; }
+  .result-value { font-size: var(--text-sm); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .v-primary { color: var(--color-primary); } .v-gold { color: var(--color-gold); }
+  .v-success { color: var(--color-success); } .v-blue { color: var(--color-blue); }
+  .total-block { margin-top: var(--space-4); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); }
+  .total-header { background: var(--color-primary); padding: var(--space-4) var(--space-5); text-align: center; }
+  .total-label-text { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); margin-bottom: var(--space-1); }
+  .total-amount { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+  .total-range { background: var(--color-surface-offset); padding: var(--space-3) var(--space-5); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+  .range-item { text-align: center; }
+  .range-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-faint); margin-bottom: 2px; }
+  .range-value { font-size: var(--text-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .range-min { color: var(--color-gold); } .range-max { color: var(--color-success); }
+  .btn-reset {
+    width: 100%; margin-top: var(--space-4); padding: var(--space-3);
+    background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    font-family: var(--font-body); font-size: var(--text-xs); font-weight: 500;
+    color: var(--color-text-muted); cursor: pointer; text-transform: uppercase; letter-spacing: 0.06em;
+    transition: all var(--transition-interactive);
+  }
+  .btn-reset:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-highlight); }
+  .divider { height: 1px; background: var(--color-border); margin: var(--space-4) 0; }
+  .chart-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: var(--space-6); box-shadow: var(--shadow-sm); margin-top: var(--space-6); }
+  .chart-wrapper { position: relative; height: 280px; margin-top: var(--space-4); }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-4); }
+  .legend-item { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); color: var(--color-text-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  @keyframes flash-value { 0% { opacity:0.4; transform:scale(0.97); } 100% { opacity:1; transform:scale(1); } }
+  .animating { animation: flash-value 0.25s ease-out; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-area">
+      <svg class="logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 3L5 10V22C5 30 20 38 20 38C20 38 35 30 35 22V10L20 3Z" stroke="var(--color-primary)" stroke-width="1.5" fill="var(--color-primary-highlight)"/>
+        <rect x="14" y="15" width="5" height="12" rx="1" fill="var(--color-primary)" opacity="0.9"/>
+        <rect x="21" y="11" width="5" height="16" rx="1" fill="var(--color-primary)"/>
+      </svg>
+      <div>
+        <div class="brand-name">TROST</div>
+        <div class="brand-sub">Private Funding</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="version-tag">v1.1</span>
+      <button class="theme-toggle" data-theme-toggle aria-label="Cambiar modo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="page-title">Calculadora de Ingresos por Proyecto</div>
+  <div class="page-subtitle">Sensibiliza los honorarios y participaciones de la sociedad profesional en cada etapa.</div>
+
+  <div class="grid-main">
+    <div class="inputs-col">
+
+      <!-- ETAPA 1 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="stage-badge badge-e1">Etapa 1</span>
+          <div>
+            <div class="card-title">Estructuración y cierre</div>
+            <div class="card-desc">Ingresos únicos al armar y cerrar el vehículo de inversión.</div>
+          </div>
+        </div>
+        <div class="fields">
+          <div class="field">
+            <label>Fee estructurar vehículo</label>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">$</span>
+              <input type="text" id="feeVehiculo" placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Monto total a capturar</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="montoCaptura" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label>% asesoría profesional</label>
+              <div class="input-wrap has-suffix">
+                <input type="text" id="pctMicroinv" placeholder="0" inputmode="decimal">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+          </div>
+          <div class="field-output">
+            <span>Fee microinversionistas</span>
+            <strong id="outFeeInv">$ 0</strong>
+          </div>
+          <div class="field">
+            <label>Fee cierre inversión (monto fijo)</label>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">$</span>
+              <input type="text" id="feeCierre" placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field-output">
+            <span><strong>Total Etapa 1</strong></span>
+            <strong id="outEtapa1">$ 0</strong>
+          </div>
+          <div class="divider"></div>
+          <div class="field">
+            <label>Plazo de implementación</label>
+            <div class="input-wrap has-suffix">
+              <input type="text" id="plazoE1" placeholder="0" inputmode="numeric">
+              <span class="suffix">meses</span>
+            </div>
+          </div>
+          <div class="info-row" id="ingresoMensualE1Row">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Ingreso mensual estimado (E1): <strong id="outMensualE1">$ 0</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 2 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="stage-badge badge-e2">Etapa 2</span>
+          <div>
+            <div class="card-title">Servicios recurrentes</div>
+            <div class="card-desc">Honorarios mensuales durante la ejecución del proyecto.</div>
+          </div>
+        </div>
+        <div class="fields">
+          <div class="field-row">
+            <div class="field">
+              <label>Asesoría permisos — valor/mes</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="permisosVal" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label>Duración (meses)</label>
+              <input type="text" id="permisosMeses" placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field-output">
+            <span>Subtotal asesoría permisos</span>
+            <strong id="outPermisos">$ 0</strong>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Sistema operacional — valor/mes</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="operacionalVal" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label>Duración (meses)</label>
+              <input type="text" id="operacionalMeses" placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field-output">
+            <span>Subtotal sistema operacional</span>
+            <strong id="outOperacional">$ 0</strong>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Mantención vehículo — valor/mes</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="mantencionVal" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label>Duración (meses)</label>
+              <input type="text" id="mantencionMeses" placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field-output">
+            <span>Subtotal mantención vehículo</span>
+            <strong id="outMantencion">$ 0</strong>
+          </div>
+          <div class="field-output">
+            <span><strong>Total Etapa 2</strong></span>
+            <strong id="outEtapa2">$ 0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 3 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="stage-badge badge-e3">Etapa 3</span>
+          <div>
+            <div class="card-title">Participación en utilidades</div>
+            <div class="card-desc">Retiros como socio del vehículo de inversión.</div>
+          </div>
+        </div>
+        <div class="fields">
+          <div class="field">
+            <label>Horizonte del proyecto</label>
+            <div class="input-wrap has-suffix">
+              <input type="text" id="meses" placeholder="12" inputmode="numeric">
+              <span class="suffix">meses totales</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="field-row">
+            <div class="field">
+              <label>Utilidad mensual mínima</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="utilMin" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field">
+              <label>Utilidad mensual máxima</label>
+              <div class="input-wrap has-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="utilMax" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>% participación en el vehículo</label>
+            <div class="input-wrap has-suffix">
+              <input type="text" id="pctParticipacion" placeholder="0" inputmode="decimal">
+              <span class="suffix">%</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-output">
+              <span>Retiro mín. / mes</span>
+              <strong id="outRetiroMin" style="color: var(--color-gold)">$ 0</strong>
+            </div>
+            <div class="field-output">
+              <span>Retiro máx. / mes</span>
+              <strong id="outRetiroMax" style="color: var(--color-success)">$ 0</strong>
+            </div>
+          </div>
+          <div class="field-output">
+            <span>Retiro promedio × <span id="mesesLabel2">0</span> meses</span>
+            <strong id="outEtapa3">$ 0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRÁFICO -->
+      <div class="chart-card">
+        <div class="card-header">
+          <span class="stage-badge badge-chart">Visualización</span>
+          <div>
+            <div class="card-title">Ingresos mensuales del proyecto</div>
+            <div class="card-desc">E1 distribuida en plazo de implementación · E2 por mes · E3 últimos dos puntos del horizonte (mín. y máx.)</div>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="incomeChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#4f98a3"></div> Etapa 1 (estructuración)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e8af34"></div> Etapa 2 (servicios recurrentes)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6daa45"></div> Etapa 3 — mínimo</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#5591c7"></div> Etapa 3 — máximo</div>
+        </div>
+      </div>
+
+    </div><!-- /inputs-col -->
+
+    <!-- RESULTS PANEL -->
+    <div class="results-panel">
+      <div class="results-card">
+        <div class="results-title">Resumen del proyecto</div>
+        <div class="result-line">
+          <div class="result-label">Fee vehículo<small>Etapa 1</small></div>
+          <span class="result-value v-primary" id="r-feeVehiculo">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Fee microinversionistas<small>Etapa 1</small></div>
+          <span class="result-value v-primary" id="r-feeInv">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Fee cierre<small>Etapa 1</small></div>
+          <span class="result-value v-primary" id="r-feeCierre">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Ingreso mensual E1<small>Total E1 ÷ plazo</small></div>
+          <span class="result-value v-blue" id="r-mensualE1">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Asesoría permisos<small>Etapa 2</small></div>
+          <span class="result-value v-gold" id="r-permisos">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Sistema operacional<small>Etapa 2</small></div>
+          <span class="result-value v-gold" id="r-operacional">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Mantención vehículo<small>Etapa 2</small></div>
+          <span class="result-value v-gold" id="r-mantencion">$ 0</span>
+        </div>
+        <div class="result-line">
+          <div class="result-label">Retiros (promedio)<small>Etapa 3 · <span id="r-meses">0</span> meses</small></div>
+          <span class="result-value v-success" id="r-etapa3">$ 0</span>
+        </div>
+        <div class="total-block">
+          <div class="total-header">
+            <div class="total-label-text">Ingreso total del proyecto</div>
+            <div class="total-amount" id="totalGeneral">$ 0</div>
+          </div>
+          <div class="total-range">
+            <div class="range-item">
+              <div class="range-label">Mínimo</div>
+              <div class="range-value range-min" id="totalMin">$ 0</div>
+            </div>
+            <div class="range-item">
+              <div class="range-label">Máximo</div>
+              <div class="range-value range-max" id="totalMax">$ 0</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-reset" id="resetBtn">Reiniciar calculadora</button>
+      </div>
+    </div>
+
+  </div><!-- /grid-main -->
+</div><!-- /container -->
+
+<script>
+// ── THEME ─────────────────────────────────────────────────────────
+(function(){
+  const btn = document.querySelector('[data-theme-toggle]');
+  const root = document.documentElement;
+  let theme = root.getAttribute('data-theme') || 'dark';
+  const iconMoon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  const iconSun  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  if(btn){
+    btn.innerHTML = theme === 'dark' ? iconSun : iconMoon;
+    btn.addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', theme);
+      btn.innerHTML = theme === 'dark' ? iconSun : iconMoon;
+      updateChartTheme();
+    });
+  }
+})();
+
+// ── INPUT FORMATTING (puntos cada 3 cifras) ───────────────────────
+function formatThousands(val) {
+  const clean = val.replace(/\./g, '').replace(/[^0-9]/g, '');
+  if(!clean) return '';
+  return parseInt(clean, 10).toLocaleString('es-CL');
+}
+function parseLocale(val) {
+  return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0;
+}
+function bindFormatted(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('input', function(){
+    const pos = this.selectionStart;
+    const prev = this.value;
+    this.value = formatThousands(this.value);
+    // Adjust cursor
+    const diff = this.value.length - prev.length;
+    this.setSelectionRange(pos + diff, pos + diff);
+    calc();
+  });
+}
+// % fields (no thousands format needed)
+function bindPct(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('input', calc);
+}
+// Month fields
+function bindMonths(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('input', function(){
+    this.value = this.value.replace(/[^0-9]/g, '');
+    calc();
+  });
+}
+
+const moneyFields = ['feeVehiculo','montoCaptura','feeCierre','permisosVal','operacionalVal','mantencionVal','mantencionVal','utilMin','utilMax'];
+const pctFields   = ['pctMicroinv','pctParticipacion'];
+const monthFields = ['permisosMeses','operacionalMeses','mantencionMeses','meses','plazoE1'];
+
+moneyFields.forEach(bindFormatted);
+pctFields.forEach(bindPct);
+monthFields.forEach(bindMonths);
+
+// ── HELPERS ───────────────────────────────────────────────────────
+const gv = id => parseLocale(document.getElementById(id)?.value || '0');
+const gm = id => parseInt(document.getElementById(id)?.value || '0') || 0;
+const fmt = n => '$ ' + Math.round(n).toLocaleString('es-CL');
+function setEl(id, val, animate=true){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = fmt(val);
+  if(animate){ el.classList.remove('animating'); void el.offsetWidth; el.classList.add('animating'); }
+}
+
+// ── CHART SETUP ───────────────────────────────────────────────────
+let incomeChart = null;
+function getChartColors(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    gridColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)',
+    labelColor: isDark ? '#8892A4' : '#7a7974',
+    e1: '#4f98a3', e2: '#e8af34', e3min: '#6daa45', e3max: '#5591c7'
+  };
+}
+
+function buildChartData(totalE1, plazoE1, permisosVal, permisosMeses, operacionalVal, operacionalMeses, mantencionVal, mantencionMeses, horizonte, retiroMin, retiroMax){
+  if(horizonte < 1) return null;
+  const labels = [];
+  const dataE1 = [], dataE2 = [], dataE3min = [], dataE3max = [];
+
+  // E1 mensual: distribuida en plazo de implementación
+  const e1mensual = plazoE1 > 0 ? totalE1 / plazoE1 : 0;
+
+  for(let m = 1; m <= horizonte; m++){
+    labels.push('M' + m);
+    // E1
+    dataE1.push(m <= plazoE1 ? e1mensual : 0);
+    // E2: sum of active recurrent services this month
+    let e2 = 0;
+    if(m <= permisosMeses) e2 += permisosVal;
+    if(m <= operacionalMeses) e2 += operacionalVal;
+    if(m <= mantencionMeses) e2 += mantencionVal;
+    dataE2.push(e2);
+    // E3: solo últimos 2 puntos
+    if(m >= horizonte - 1){
+      dataE3min.push(retiroMin);
+      dataE3max.push(retiroMax);
+    } else {
+      dataE3min.push(null);
+      dataE3max.push(null);
+    }
+  }
+  return { labels, dataE1, dataE2, dataE3min, dataE3max };
+}
+
+function renderChart(d){
+  const c = getChartColors();
+  const ctx = document.getElementById('incomeChart').getContext('2d');
+  if(incomeChart){ incomeChart.destroy(); }
+  incomeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: d.labels,
+      datasets: [
+        {
+          label: 'Etapa 1',
+          data: d.dataE1,
+          backgroundColor: c.e1 + 'cc',
+          borderRadius: 3,
+          order: 4
+        },
+        {
+          label: 'Etapa 2',
+          data: d.dataE2,
+          backgroundColor: c.e2 + 'cc',
+          borderRadius: 3,
+          order: 3
+        },
+        {
+          label: 'E3 Mínimo',
+          data: d.dataE3min,
+          type: 'line',
+          borderColor: c.e3min,
+          backgroundColor: c.e3min + '33',
+          pointBackgroundColor: c.e3min,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          borderWidth: 2,
+          fill: false,
+          spanGaps: false,
+          order: 2
+        },
+        {
+          label: 'E3 Máximo',
+          data: d.dataE3max,
+          type: 'line',
+          borderColor: c.e3max,
+          backgroundColor: c.e3max + '33',
+          pointBackgroundColor: c.e3max,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          borderWidth: 2,
+          fill: false,
+          spanGaps: false,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': $ ' + Math.round(ctx.parsed.y || 0).toLocaleString('es-CL')
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: { color: c.gridColor },
+          ticks: { color: c.labelColor, font: { size: 10 }, maxTicksLimit: 24 }
+        },
+        y: {
+          stacked: true,
+          grid: { color: c.gridColor },
+          ticks: {
+            color: c.labelColor, font: { size: 10 },
+            callback: v => '$ ' + (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'k' : v)
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateChartTheme(){
+  if(incomeChart){
+    const c = getChartColors();
+    incomeChart.options.scales.x.grid.color = c.gridColor;
+    incomeChart.options.scales.x.ticks.color = c.labelColor;
+    incomeChart.options.scales.y.grid.color = c.gridColor;
+    incomeChart.options.scales.y.ticks.color = c.labelColor;
+    incomeChart.update();
+  }
+}
+
+// ── CALCULATE ─────────────────────────────────────────────────────
+function calc(){
+  // E1
+  const feeVehiculo  = gv('feeVehiculo');
+  const montoCaptura = gv('montoCaptura');
+  const pctMicroinv  = gv('pctMicroinv') / 100;
+  const feeCierre    = gv('feeCierre');
+  const feeInv       = montoCaptura * pctMicroinv;
+  const totalE1      = feeVehiculo + feeInv + feeCierre;
+  const plazoE1      = gm('plazoE1');
+  const mensualE1    = plazoE1 > 0 ? totalE1 / plazoE1 : 0;
+
+  // E2
+  const permisosVal     = gv('permisosVal');
+  const permisosMeses   = gm('permisosMeses');
+  const operacionalVal  = gv('operacionalVal');
+  const operacionalMeses= gm('operacionalMeses');
+  const mantencionVal   = gv('mantencionVal');
+  const mantencionMeses = gm('mantencionMeses');
+  const permisos    = permisosVal    * permisosMeses;
+  const operacional = operacionalVal * operacionalMeses;
+  const mantencion  = mantencionVal  * mantencionMeses;
+  const totalE2     = permisos + operacional + mantencion;
+
+  // E3
+  const horizonte   = gm('meses');
+  const pctP        = gv('pctParticipacion') / 100;
+  const retiroMin   = gv('utilMin') * pctP;
+  const retiroMax   = gv('utilMax') * pctP;
+  const retiroProm  = (retiroMin + retiroMax) / 2;
+  const totalE3     = retiroProm * horizonte;
+  const totalE3min  = retiroMin  * horizonte;
+  const totalE3max  = retiroMax  * horizonte;
+
+  const totalProm   = totalE1 + totalE2 + totalE3;
+  const totalMinVal = totalE1 + totalE2 + totalE3min;
+  const totalMaxVal = totalE1 + totalE2 + totalE3max;
+
+  // OUTPUTS
+  setEl('outFeeInv',      feeInv);
+  setEl('outEtapa1',      totalE1);
+  setEl('outMensualE1',   mensualE1);
+  document.getElementById('outMensualE1').style.color = 'var(--color-blue)';
+  setEl('outPermisos',    permisos);
+  setEl('outOperacional', operacional);
+  setEl('outMantencion',  mantencion);
+  setEl('outEtapa2',      totalE2);
+  setEl('outRetiroMin',   retiroMin);
+  setEl('outRetiroMax',   retiroMax);
+  setEl('outEtapa3',      totalE3);
+  document.getElementById('mesesLabel2').textContent = horizonte;
+
+  // SIDEBAR
+  setEl('r-feeVehiculo', feeVehiculo, false);
+  setEl('r-feeInv',      feeInv, false);
+  setEl('r-feeCierre',   feeCierre, false);
+  setEl('r-mensualE1',   mensualE1, false);
+  setEl('r-permisos',    permisos, false);
+  setEl('r-operacional', operacional, false);
+  setEl('r-mantencion',  mantencion, false);
+  setEl('r-etapa3',      totalE3, false);
+  document.getElementById('r-meses').textContent = horizonte;
+
+  const totalEl = document.getElementById('totalGeneral');
+  totalEl.textContent = fmt(totalProm);
+  totalEl.classList.remove('animating'); void totalEl.offsetWidth; totalEl.classList.add('animating');
+  setEl('totalMin', totalMinVal, false);
+  setEl('totalMax', totalMaxVal, false);
+
+  // CHART
+  if(horizonte > 0){
+    const d = buildChartData(totalE1, plazoE1, permisosVal, permisosMeses, operacionalVal, operacionalMeses, mantencionVal, mantencionMeses, horizonte, retiroMin, retiroMax);
+    if(d) renderChart(d);
+  }
+}
+
+// ── RESET ─────────────────────────────────────────────────────────
+document.getElementById('resetBtn').addEventListener('click', () => {
+  document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+  if(incomeChart){ incomeChart.destroy(); incomeChart = null; }
+  calc();
+});
+
+calc();
+</script>
+</body>
+</html>
